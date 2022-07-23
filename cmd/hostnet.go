@@ -13,13 +13,9 @@ import (
 // hostnetCmd represents the hostnet command
 var hostnetCmd = &cobra.Command{
 	Use:   "hostnet",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "list pods with host networking",
+	Long: `This command returns a list of all the pods in the cluster
+	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("hostnet called")
 	},
