@@ -16,6 +16,7 @@ var hostnetCmd = &cobra.Command{
 	Long: `This command returns a list of all the pods in the cluster
 	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		//Get the value of the kubeconfig flag so we can pass it to the command
 		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
 		eathar.Hostnet(kubeconfig)
 	},
@@ -23,14 +24,4 @@ var hostnetCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(hostnetCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// hostnetCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// hostnetCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

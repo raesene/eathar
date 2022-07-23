@@ -13,13 +13,10 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "eathar",
-	Short: "Kubernetes Security information retriever",
+	Short: "Kubernetes Security Information Retriever",
 	Long: `Eathar is a program designed to pull information that might be
 	of interest back from Kubernetes clusters.`,
 	Version: "0.1",
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -32,10 +29,12 @@ func Execute() {
 }
 
 func init() {
+	// Get the home directory for default kubeconfig location
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		os.Exit(1)
 	}
+	// Set the default path for kubeconfig files
 	defaultkubeconfig := homedir + "/.kube/config"
 	rootCmd.PersistentFlags().StringP("kubeconfig", "k", defaultkubeconfig,
 		"Kubeconfig file")
