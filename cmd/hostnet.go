@@ -1,12 +1,11 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
 
 */
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/raesene/eathar/pkg/eathar"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +16,8 @@ var hostnetCmd = &cobra.Command{
 	Long: `This command returns a list of all the pods in the cluster
 	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("hostnet called")
+		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
+		eathar.Hostnet(kubeconfig)
 	},
 }
 
