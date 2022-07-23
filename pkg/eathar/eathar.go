@@ -10,7 +10,7 @@ import (
 )
 
 func Hostnet(kubeconfig string) {
-
+	// We need to split this out as it's called for every function
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		panic(err.Error())
