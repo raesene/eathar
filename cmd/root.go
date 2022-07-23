@@ -32,6 +32,11 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringP("kubeconfig", "k", "$HOME/.kube/config",
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		os.Exit(1)
+	}
+	defaultkubeconfig := homedir + "/.kube/config"
+	rootCmd.PersistentFlags().StringP("kubeconfig", "k", defaultkubeconfig,
 		"Kubeconfig file")
 }

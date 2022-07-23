@@ -11,8 +11,6 @@ import (
 
 func Hostnet(kubeconfig string) {
 
-	fmt.Println("You got to the package")
-	fmt.Println(kubeconfig)
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		panic(err.Error())
