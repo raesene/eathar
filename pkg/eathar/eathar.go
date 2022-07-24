@@ -3,6 +3,7 @@ package eathar
 import (
 	"context"
 	"fmt"
+	"log"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -21,7 +22,7 @@ func Hostnet(kubeconfig string) {
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
@@ -37,7 +38,7 @@ func Hostpid(kubeconfig string) {
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
@@ -53,7 +54,7 @@ func AllowPrivEsc(kubeconfig string) {
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
@@ -74,7 +75,7 @@ func Privileged(kubeconfig string) {
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
@@ -99,11 +100,11 @@ func Privileged(kubeconfig string) {
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err)
 	}
 	return clientset
 }
