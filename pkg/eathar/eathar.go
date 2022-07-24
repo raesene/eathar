@@ -17,8 +17,24 @@ type privileged struct {
 	container string
 }
 
-func Hostnet(kubeconfig string) {
+type hostpid struct {
+	namespace string
+	pod       string
+}
 
+type hostnet struct {
+	namespace string
+	pod       string
+}
+
+type allowprivesc struct {
+	namespace string
+	pod       string
+	container string
+}
+
+func Hostnet(kubeconfig string) {
+	var hostnetcont []hostnet
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -29,12 +45,15 @@ func Hostnet(kubeconfig string) {
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostNetwork {
-			fmt.Printf("Pod %s is using Host networking\n", pod.Name)
+			p := hostnet{namespace: pod.Namespace, pod: pod.Name}
+			fmt.Printf("Namespace %s - Pod %s is using Host networking\n", p.namespace, p.pod)
+			hostnetcont = append(hostnetcont, p)
 		}
 	}
 }
 
 func Hostpid(kubeconfig string) {
+	var hostpidcont []hostpid
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -45,12 +64,15 @@ func Hostpid(kubeconfig string) {
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostPID {
-			fmt.Printf("Pod %s is using Host PID\n", pod.Name)
+			p := hostpid{namespace: pod.Namespace, pod: pod.Name}
+			fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
+			hostpidcont = append(hostpidcont, p)
 		}
 	}
 }
 
 func AllowPrivEsc(kubeconfig string) {
+	var allowprivesccont []allowprivesc
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -59,12 +81,14 @@ func AllowPrivEsc(kubeconfig string) {
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 	for _, pod := range pods.Items {
-		for i, container := range pod.Spec.Containers {
+		for _, container := range pod.Spec.Containers {
 			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
 			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
 			allowPrivilegeEscalation := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
-				fmt.Printf("Pod: %s - Container %d : %s does not block privilege escalation\n", pod.Name, i+1, container.Name)
+				p := allowprivesc{namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
+				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
 	}
