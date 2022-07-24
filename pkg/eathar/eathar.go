@@ -10,15 +10,8 @@ import (
 )
 
 func Hostnet(kubeconfig string) {
-	// We need to split this out as it's called for every function
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		panic(err.Error())
-	}
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err.Error())
-	}
+
+	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
@@ -31,4 +24,17 @@ func Hostnet(kubeconfig string) {
 			fmt.Printf("Pod %s is using Host networking\n", pod.Name)
 		}
 	}
+}
+
+// This is our function for connecting to the cluster
+func connectToCluster(kubeconfig string) *kubernetes.Clientset {
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		panic(err.Error())
+	}
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err.Error())
+	}
+	return clientset
 }
