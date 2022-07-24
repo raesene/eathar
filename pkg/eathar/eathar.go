@@ -26,6 +26,22 @@ func Hostnet(kubeconfig string) {
 	}
 }
 
+func Hostpid(kubeconfig string) {
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	//Debugging command
+	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+	for _, pod := range pods.Items {
+
+		if pod.Spec.HostPID {
+			fmt.Printf("Pod %s is using Host PID\n", pod.Name)
+		}
+	}
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
