@@ -9,6 +9,13 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+//Containers are privileged not pods
+type privileged struct {
+	namespace string
+	pod       string
+	container string
+}
+
 func Hostnet(kubeconfig string) {
 
 	clientset := connectToCluster(kubeconfig)
@@ -60,6 +67,32 @@ func AllowPrivEsc(kubeconfig string) {
 			}
 		}
 	}
+}
+
+func Privileged(kubeconfig string) {
+	var privcont []privileged
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	//Debugging command
+	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
+			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
+			if privileged_container {
+				// So we create a new privileged struct from our matching container
+				p := privileged{namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
+				//And we append it to our slice of all our privileged containers
+				privcont = append(privcont, p)
+			}
+		}
+	}
+	// Just to prove our slice is working
+	fmt.Printf("we have %d privileged containers\n", len(privcont))
 }
 
 // This is our function for connecting to the cluster
