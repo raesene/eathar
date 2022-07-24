@@ -42,6 +42,26 @@ func Hostpid(kubeconfig string) {
 	}
 }
 
+func AllowPrivEsc(kubeconfig string) {
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		panic(err.Error())
+	}
+	//Debugging command
+	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+	for _, pod := range pods.Items {
+		for i, container := range pod.Spec.Containers {
+			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
+			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
+			allowPrivilegeEscalation := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.AllowPrivilegeEscalation == nil)
+			if allowPrivilegeEscalation {
+				fmt.Printf("Pod: %s - Container %d : %s does not block privilege escalation\n", pod.Name, i+1, container.Name)
+			}
+		}
+	}
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)

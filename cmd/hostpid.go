@@ -12,13 +12,10 @@ import (
 // hostpidCmd represents the hostpid command
 var hostpidCmd = &cobra.Command{
 	Use:   "hostpid",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List pods with host PID access",
+	Long: `This command lists pods which have host PID access
+	This access could be misused by an attacker to affect processes
+	in other containers on running on the host.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
 		eathar.Hostpid(kubeconfig)
