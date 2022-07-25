@@ -10,31 +10,15 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-//Containers are privileged not pods
-type privileged struct {
-	namespace string
-	pod       string
-	container string
-}
-
-type hostpid struct {
-	namespace string
-	pod       string
-}
-
-type hostnet struct {
-	namespace string
-	pod       string
-}
-
-type allowprivesc struct {
+type finding struct {
+	check     string
 	namespace string
 	pod       string
 	container string
 }
 
 func Hostnet(kubeconfig string) {
-	var hostnetcont []hostnet
+	var hostnetcont []finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -45,15 +29,17 @@ func Hostnet(kubeconfig string) {
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostNetwork {
-			p := hostnet{namespace: pod.Namespace, pod: pod.Name}
-			fmt.Printf("Namespace %s - Pod %s is using Host networking\n", p.namespace, p.pod)
+			// We set the container to blank as there's no container for this finding
+			p := finding{check: "hostnet", namespace: pod.Namespace, pod: pod.Name, container: ""}
+			//fmt.Printf("Namespace %s - Pod %s is using Host networking\n", p.namespace, p.pod)
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
+	report(hostnetcont)
 }
 
 func Hostpid(kubeconfig string) {
-	var hostpidcont []hostpid
+	var hostpidcont []finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -64,15 +50,16 @@ func Hostpid(kubeconfig string) {
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostPID {
-			p := hostpid{namespace: pod.Namespace, pod: pod.Name}
-			fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
+			p := finding{check: "hostpid", namespace: pod.Namespace, pod: pod.Name, container: ""}
+			//fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
+	report(hostpidcont)
 }
 
 func AllowPrivEsc(kubeconfig string) {
-	var allowprivesccont []allowprivesc
+	var allowprivesccont []finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -86,16 +73,17 @@ func AllowPrivEsc(kubeconfig string) {
 			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
 			allowPrivilegeEscalation := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
-				p := allowprivesc{namespace: pod.Namespace, pod: pod.Name, container: container.Name}
-				fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
+				p := finding{check: "allowprivesc", namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
 				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
 	}
+	report(allowprivesccont)
 }
 
 func Privileged(kubeconfig string) {
-	var privcont []privileged
+	var privcont []finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -109,15 +97,15 @@ func Privileged(kubeconfig string) {
 			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
 			if privileged_container {
 				// So we create a new privileged struct from our matching container
-				p := privileged{namespace: pod.Namespace, pod: pod.Name, container: container.Name}
-				fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
+				p := finding{check: "privileged", namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
 				//And we append it to our slice of all our privileged containers
 				privcont = append(privcont, p)
 			}
 		}
 	}
 	// Just to prove our slice is working
-	fmt.Printf("we have %d privileged containers\n", len(privcont))
+	report(privcont)
 }
 
 // This is our function for connecting to the cluster
@@ -131,4 +119,15 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 		log.Fatal(err)
 	}
 	return clientset
+}
+
+func report(f []finding) {
+	fmt.Printf("Findings for the %s check\n", f[0].check)
+	for _, i := range f {
+		if i.container == "" {
+			fmt.Printf("namespace %s : pod %s\n", i.namespace, i.pod)
+		} else {
+			fmt.Printf("namespace %s : pod %s : container %s\n", i.namespace, i.pod, i.container)
+		}
+	}
 }
