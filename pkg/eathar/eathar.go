@@ -10,15 +10,16 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-type finding struct {
-	check     string
-	namespace string
-	pod       string
-	container string
+//This needs to be exported to work with the JSON marshalling
+type Finding struct {
+	Check     string
+	Namespace string
+	Pod       string
+	Container string
 }
 
 func Hostnet(kubeconfig string) {
-	var hostnetcont []finding
+	var hostnetcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -30,7 +31,7 @@ func Hostnet(kubeconfig string) {
 
 		if pod.Spec.HostNetwork {
 			// We set the container to blank as there's no container for this finding
-			p := finding{check: "hostnet", namespace: pod.Namespace, pod: pod.Name, container: ""}
+			p := Finding{Check: "hostnet", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
 			//fmt.Printf("Namespace %s - Pod %s is using Host networking\n", p.namespace, p.pod)
 			hostnetcont = append(hostnetcont, p)
 		}
@@ -39,7 +40,7 @@ func Hostnet(kubeconfig string) {
 }
 
 func Hostpid(kubeconfig string) {
-	var hostpidcont []finding
+	var hostpidcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -50,7 +51,7 @@ func Hostpid(kubeconfig string) {
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostPID {
-			p := finding{check: "hostpid", namespace: pod.Namespace, pod: pod.Name, container: ""}
+			p := Finding{Check: "hostpid", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
 			//fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
 			hostpidcont = append(hostpidcont, p)
 		}
@@ -59,7 +60,7 @@ func Hostpid(kubeconfig string) {
 }
 
 func AllowPrivEsc(kubeconfig string) {
-	var allowprivesccont []finding
+	var allowprivesccont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -73,7 +74,7 @@ func AllowPrivEsc(kubeconfig string) {
 			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
 			allowPrivilegeEscalation := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
-				p := finding{check: "allowprivesc", namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
 				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
 				allowprivesccont = append(allowprivesccont, p)
 			}
@@ -83,7 +84,7 @@ func AllowPrivEsc(kubeconfig string) {
 }
 
 func Privileged(kubeconfig string) {
-	var privcont []finding
+	var privcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -97,7 +98,7 @@ func Privileged(kubeconfig string) {
 			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
 			if privileged_container {
 				// So we create a new privileged struct from our matching container
-				p := finding{check: "privileged", namespace: pod.Namespace, pod: pod.Name, container: container.Name}
+				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
 				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
 				//And we append it to our slice of all our privileged containers
 				privcont = append(privcont, p)
@@ -121,13 +122,19 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	return clientset
 }
 
-func report(f []finding) {
-	fmt.Printf("Findings for the %s check\n", f[0].check)
+func report(f []Finding) {
+	fmt.Printf("Findings for the %s check\n", f[0].Check)
 	for _, i := range f {
-		if i.container == "" {
-			fmt.Printf("namespace %s : pod %s\n", i.namespace, i.pod)
+		if i.Container == "" {
+			fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
 		} else {
-			fmt.Printf("namespace %s : pod %s : container %s\n", i.namespace, i.pod, i.container)
+			fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 		}
 	}
+	// We need to setup an option on whether this gets produced
+	//js, err := json.Marshal(f)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Println(string(js))
 }
