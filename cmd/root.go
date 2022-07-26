@@ -38,4 +38,5 @@ func init() {
 	defaultkubeconfig := homedir + "/.kube/config"
 	rootCmd.PersistentFlags().StringP("kubeconfig", "k", defaultkubeconfig,
 		"Kubeconfig file")
+	rootCmd.PersistentFlags().BoolP("jsonrep", "j", false, "json reporting")
 }

@@ -19,7 +19,8 @@ var allowprivescCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		//Get the value of the kubeconfig flag so we can pass it to the command
 		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		eathar.AllowPrivEsc(kubeconfig)
+		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
+		eathar.AllowPrivEsc(kubeconfig, jsonrep)
 	},
 }
 

@@ -2,6 +2,7 @@ package eathar
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -18,7 +19,7 @@ type Finding struct {
 	Container string
 }
 
-func Hostnet(kubeconfig string) {
+func Hostnet(kubeconfig string, jsonrep bool) {
 	var hostnetcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
@@ -36,10 +37,10 @@ func Hostnet(kubeconfig string) {
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
-	report(hostnetcont)
+	report(hostnetcont, jsonrep)
 }
 
-func Hostpid(kubeconfig string) {
+func Hostpid(kubeconfig string, jsonrep bool) {
 	var hostpidcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
@@ -56,10 +57,10 @@ func Hostpid(kubeconfig string) {
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
-	report(hostpidcont)
+	report(hostpidcont, jsonrep)
 }
 
-func AllowPrivEsc(kubeconfig string) {
+func AllowPrivEsc(kubeconfig string, jsonrep bool) {
 	var allowprivesccont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
@@ -80,10 +81,10 @@ func AllowPrivEsc(kubeconfig string) {
 			}
 		}
 	}
-	report(allowprivesccont)
+	report(allowprivesccont, jsonrep)
 }
 
-func Privileged(kubeconfig string) {
+func Privileged(kubeconfig string, jsonrep bool) {
 	var privcont []Finding
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
@@ -106,7 +107,7 @@ func Privileged(kubeconfig string) {
 		}
 	}
 	// Just to prove our slice is working
-	report(privcont)
+	report(privcont, jsonrep)
 }
 
 // This is our function for connecting to the cluster
@@ -122,19 +123,23 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	return clientset
 }
 
-func report(f []Finding) {
-	fmt.Printf("Findings for the %s check\n", f[0].Check)
-	for _, i := range f {
-		if i.Container == "" {
-			fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
-		} else {
-			fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+func report(f []Finding, jsonrep bool) {
+	if !jsonrep {
+		fmt.Printf("Findings for the %s check\n", f[0].Check)
+		for _, i := range f {
+			if i.Container == "" {
+				fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
+			} else {
+				fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+			}
 		}
+	} else {
+
+		js, err := json.MarshalIndent(f, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(string(js))
 	}
-	// We need to setup an option on whether this gets produced
-	//js, err := json.Marshal(f)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//fmt.Println(string(js))
+
 }

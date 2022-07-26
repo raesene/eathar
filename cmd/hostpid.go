@@ -18,7 +18,8 @@ var hostpidCmd = &cobra.Command{
 	in other containers on running on the host.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		eathar.Hostpid(kubeconfig)
+		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
+		eathar.Hostpid(kubeconfig, jsonrep)
 	},
 }
 
