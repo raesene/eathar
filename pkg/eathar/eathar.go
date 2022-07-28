@@ -16,7 +16,7 @@ type Finding struct {
 	Check     string
 	Namespace string
 	Pod       string
-	Container string
+	Container string `json:",omitempty"`
 }
 
 func Hostnet(kubeconfig string, jsonrep bool) {
