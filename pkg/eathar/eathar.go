@@ -120,7 +120,7 @@ func AddedCapabilities(kubeconfig string, jsonrep bool) {
 	}
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
-			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities.Add != nil
+			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Add != nil
 			if cap_added {
 				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
 				capadded = append(capadded, p)
