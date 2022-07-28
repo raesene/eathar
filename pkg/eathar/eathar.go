@@ -12,6 +12,7 @@ import (
 )
 
 //This needs to be exported to work with the JSON marshalling
+// omitempty thing is there as container won't always be relevant (e.g. hostPID)
 type Finding struct {
 	Check     string
 	Namespace string
@@ -108,6 +109,25 @@ func Privileged(kubeconfig string, jsonrep bool) {
 	}
 	// Just to prove our slice is working
 	report(privcont, jsonrep)
+}
+
+func AddedCapabilities(kubeconfig string, jsonrep bool) {
+	var capadded []Finding
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities.Add != nil
+			if cap_added {
+				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
+				capadded = append(capadded, p)
+			}
+		}
+	}
+	report(capadded, jsonrep)
 }
 
 // This is our function for connecting to the cluster
