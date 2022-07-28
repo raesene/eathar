@@ -145,13 +145,17 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 
 func report(f []Finding, jsonrep bool) {
 	if !jsonrep {
-		fmt.Printf("Findings for the %s check\n", f[0].Check)
-		for _, i := range f {
-			if i.Container == "" {
-				fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
-			} else {
-				fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+		if f != nil {
+			fmt.Printf("Findings for the %s check\n", f[0].Check)
+			for _, i := range f {
+				if i.Container == "" {
+					fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
+				} else {
+					fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+				}
 			}
+		} else {
+			fmt.Println("No findings!")
 		}
 	} else {
 
