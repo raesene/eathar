@@ -12,10 +12,11 @@ At the moment there's four things it can check for
 - hostnet - Provides a list of pods in the cluster configured to use Host Networking
 - privileged - Provides a list of containers in the cluster configured to be privileged
 - allowprivesc - Provides a list of containers in the cluster configured to allow privilege escalation
+- capadded - Provides a list of pods which have capabilities added over the default set.
 
 ## Reporting
 
-There's two options for reporting. The first (which is the default) is just to report to STDIN . The other option specified with `-j` is to output JSON to STDIN. File output is on the ToDo list :)
+There's two options for reporting. The first (which is the default) is just to report to STDOUT . The other option specified with `-j` is to output JSON to STDOUT. File output is on the ToDo list :)
 
 ## Name
 
