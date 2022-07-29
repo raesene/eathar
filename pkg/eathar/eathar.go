@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -14,10 +15,11 @@ import (
 //This needs to be exported to work with the JSON marshalling
 // omitempty thing is there as container won't always be relevant (e.g. hostPID)
 type Finding struct {
-	Check     string
-	Namespace string
-	Pod       string
-	Container string `json:",omitempty"`
+	Check        string
+	Namespace    string
+	Pod          string
+	Container    string   `json:",omitempty"`
+	Capabilities []string `json:",omitempty"`
 }
 
 func Hostnet(kubeconfig string, jsonrep bool) {
@@ -122,8 +124,15 @@ func AddedCapabilities(kubeconfig string, jsonrep bool) {
 		for _, container := range pod.Spec.Containers {
 			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Add != nil
 			if cap_added {
-				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
+				//Need to convert the capabilities struct to strings, I think.
+				var added_caps []string
+				for _, cap := range container.SecurityContext.Capabilities.Add {
+					added_caps = append(added_caps, string(cap))
+				}
+				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Capabilities: added_caps}
 				capadded = append(capadded, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 	}
@@ -148,10 +157,13 @@ func report(f []Finding, jsonrep bool) {
 		if f != nil {
 			fmt.Printf("Findings for the %s check\n", f[0].Check)
 			for _, i := range f {
-				if i.Container == "" {
+				switch i.Check {
+				case "hostpid", "hostnet":
 					fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
-				} else {
+				case "privileged", "allowprivesc":
 					fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+				case "Added Capabilities":
+					fmt.Printf("namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				}
 			}
 		} else {
