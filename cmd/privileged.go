@@ -17,10 +17,8 @@ var privilegedCmd = &cobra.Command{
 	as privileged can easily break out to the underlying host
 	so should be used only where expicitly required.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//Get the value of the kubeconfig flag so we can pass it to the command
-		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
-		eathar.Privileged(kubeconfig, jsonrep)
+		options := cmd.Flags()
+		eathar.Privileged(options)
 	},
 }
 

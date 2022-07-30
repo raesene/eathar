@@ -16,10 +16,8 @@ var hostnetCmd = &cobra.Command{
 	Long: `This command returns a list of all the pods in the cluster
 	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//Get the value of the kubeconfig flag so we can pass it to the command
-		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
-		eathar.Hostnet(kubeconfig, jsonrep)
+		options := cmd.Flags()
+		eathar.Hostnet(options)
 	},
 }
 

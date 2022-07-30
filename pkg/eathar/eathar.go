@@ -7,6 +7,7 @@ import (
 	"log"
 	"strings"
 
+	"github.com/spf13/pflag"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -22,8 +23,10 @@ type Finding struct {
 	Capabilities []string `json:",omitempty"`
 }
 
-func Hostnet(kubeconfig string, jsonrep bool) {
+func Hostnet(options *pflag.FlagSet) {
 	var hostnetcont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -43,8 +46,10 @@ func Hostnet(kubeconfig string, jsonrep bool) {
 	report(hostnetcont, jsonrep)
 }
 
-func Hostpid(kubeconfig string, jsonrep bool) {
+func Hostpid(options *pflag.FlagSet) {
 	var hostpidcont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -52,6 +57,7 @@ func Hostpid(kubeconfig string, jsonrep bool) {
 	}
 	//Debugging command
 	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostPID {
@@ -63,8 +69,10 @@ func Hostpid(kubeconfig string, jsonrep bool) {
 	report(hostpidcont, jsonrep)
 }
 
-func AllowPrivEsc(kubeconfig string, jsonrep bool) {
+func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -87,8 +95,10 @@ func AllowPrivEsc(kubeconfig string, jsonrep bool) {
 	report(allowprivesccont, jsonrep)
 }
 
-func Privileged(kubeconfig string, jsonrep bool) {
+func Privileged(options *pflag.FlagSet) {
 	var privcont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -113,8 +123,10 @@ func Privileged(kubeconfig string, jsonrep bool) {
 	report(privcont, jsonrep)
 }
 
-func AddedCapabilities(kubeconfig string, jsonrep bool) {
+func AddedCapabilities(options *pflag.FlagSet) {
 	var capadded []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {

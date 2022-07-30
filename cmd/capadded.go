@@ -17,10 +17,8 @@ var capaddedCmd = &cobra.Command{
 	by the CRI can risk container breakout. This command lists all the
 	containers with added capabilities`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//Get the value of the kubeconfig flag so we can pass it to the command
-		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
-		eathar.AddedCapabilities(kubeconfig, jsonrep)
+		options := cmd.Flags()
+		eathar.AddedCapabilities(options)
 	},
 }
 

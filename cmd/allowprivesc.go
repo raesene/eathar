@@ -17,10 +17,8 @@ var allowprivescCmd = &cobra.Command{
 	This is a default in general for linux container runtimes and allows
 	for things like sudo to be used in a container to escalate privileges`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//Get the value of the kubeconfig flag so we can pass it to the command
-		kubeconfig, _ := cmd.Flags().GetString("kubeconfig")
-		jsonrep, _ := cmd.Flags().GetBool("jsonrep")
-		eathar.AllowPrivEsc(kubeconfig, jsonrep)
+		options := cmd.Flags()
+		eathar.AllowPrivEsc(options)
 	},
 }
 
