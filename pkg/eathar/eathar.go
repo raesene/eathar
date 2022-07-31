@@ -151,6 +151,34 @@ func AddedCapabilities(options *pflag.FlagSet) {
 	report(capadded, jsonrep)
 }
 
+func DroppedCapabilities(options *pflag.FlagSet) {
+	var capdropped []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			cap_dropped := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Drop != nil
+			if cap_dropped {
+				//Need to convert the capabilities struct to strings, I think.
+				var dropped_caps []string
+				for _, cap := range container.SecurityContext.Capabilities.Drop {
+					dropped_caps = append(dropped_caps, string(cap))
+				}
+				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Capabilities: dropped_caps}
+				capdropped = append(capdropped, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
+			}
+		}
+	}
+	report(capdropped, jsonrep)
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -176,6 +204,8 @@ func report(f []Finding, jsonrep bool) {
 					fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 				case "Added Capabilities":
 					fmt.Printf("namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+				case "Dropped Capabilities":
+					fmt.Printf("namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				}
 			}
 		} else {
