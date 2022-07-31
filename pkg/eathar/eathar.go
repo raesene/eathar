@@ -118,6 +118,17 @@ func Privileged(options *pflag.FlagSet) {
 				privcont = append(privcont, p)
 			}
 		}
+		for _, init_container := range pod.Spec.InitContainers {
+			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
+			privileged_container := init_container.SecurityContext != nil && init_container.SecurityContext.Privileged != nil && *init_container.SecurityContext.Privileged
+			if privileged_container {
+				// So we create a new privileged struct from our matching container
+				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
+				//And we append it to our slice of all our privileged containers
+				privcont = append(privcont, p)
+			}
+		}
 	}
 	// Just to prove our slice is working
 	report(privcont, jsonrep)
