@@ -91,7 +91,28 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
+		for _, init_container := range pod.Spec.InitContainers {
+			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
+			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
+			allowPrivilegeEscalation := (init_container.SecurityContext == nil) || (init_container.SecurityContext != nil && init_container.SecurityContext.AllowPrivilegeEscalation == nil)
+			if allowPrivilegeEscalation {
+				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
+				allowprivesccont = append(allowprivesccont, p)
+			}
+		}
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
+			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
+			allowPrivilegeEscalation := (eph_container.SecurityContext == nil) || (eph_container.SecurityContext != nil && eph_container.SecurityContext.AllowPrivilegeEscalation == nil)
+			if allowPrivilegeEscalation {
+				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
+				allowprivesccont = append(allowprivesccont, p)
+			}
+		}
 	}
+
 	report(allowprivesccont, jsonrep)
 }
 
@@ -129,6 +150,17 @@ func Privileged(options *pflag.FlagSet) {
 				privcont = append(privcont, p)
 			}
 		}
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
+			privileged_container := eph_container.SecurityContext != nil && eph_container.SecurityContext.Privileged != nil && *eph_container.SecurityContext.Privileged
+			if privileged_container {
+				// So we create a new privileged struct from our matching container
+				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
+				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
+				//And we append it to our slice of all our privileged containers
+				privcont = append(privcont, p)
+			}
+		}
 	}
 	// Just to prove our slice is working
 	report(privcont, jsonrep)
@@ -158,6 +190,36 @@ func AddedCapabilities(options *pflag.FlagSet) {
 				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
+
+		for _, init_container := range pod.Spec.InitContainers {
+			cap_added := init_container.SecurityContext != nil && init_container.SecurityContext.Capabilities != nil && init_container.SecurityContext.Capabilities.Add != nil
+			if cap_added {
+				//Need to convert the capabilities struct to strings, I think.
+				var added_caps []string
+				for _, cap := range init_container.SecurityContext.Capabilities.Add {
+					added_caps = append(added_caps, string(cap))
+				}
+				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Capabilities: added_caps}
+				capadded = append(capadded, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
+			}
+		}
+
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			cap_added := eph_container.SecurityContext != nil && eph_container.SecurityContext.Capabilities != nil && eph_container.SecurityContext.Capabilities.Add != nil
+			if cap_added {
+				//Need to convert the capabilities struct to strings, I think.
+				var added_caps []string
+				for _, cap := range eph_container.SecurityContext.Capabilities.Add {
+					added_caps = append(added_caps, string(cap))
+				}
+				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Capabilities: added_caps}
+				capadded = append(capadded, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
+			}
+		}
 	}
 	report(capadded, jsonrep)
 }
@@ -181,6 +243,36 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 					dropped_caps = append(dropped_caps, string(cap))
 				}
 				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Capabilities: dropped_caps}
+				capdropped = append(capdropped, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
+			}
+		}
+
+		for _, init_container := range pod.Spec.InitContainers {
+			cap_dropped := init_container.SecurityContext != nil && init_container.SecurityContext.Capabilities != nil && init_container.SecurityContext.Capabilities.Drop != nil
+			if cap_dropped {
+				//Need to convert the capabilities struct to strings, I think.
+				var dropped_caps []string
+				for _, cap := range init_container.SecurityContext.Capabilities.Drop {
+					dropped_caps = append(dropped_caps, string(cap))
+				}
+				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Capabilities: dropped_caps}
+				capdropped = append(capdropped, p)
+				//debugging command
+				//fmt.Println(strings.Join(added_caps[:], ","))
+			}
+		}
+
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			cap_dropped := eph_container.SecurityContext != nil && eph_container.SecurityContext.Capabilities != nil && eph_container.SecurityContext.Capabilities.Drop != nil
+			if cap_dropped {
+				//Need to convert the capabilities struct to strings, I think.
+				var dropped_caps []string
+				for _, cap := range eph_container.SecurityContext.Capabilities.Drop {
+					dropped_caps = append(dropped_caps, string(cap))
+				}
+				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Capabilities: dropped_caps}
 				capdropped = append(capdropped, p)
 				//debugging command
 				//fmt.Println(strings.Join(added_caps[:], ","))
