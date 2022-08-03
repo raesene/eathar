@@ -69,6 +69,29 @@ func Hostpid(options *pflag.FlagSet) {
 	report(hostpidcont, jsonrep)
 }
 
+func Hostipc(options *pflag.FlagSet) {
+	var hostipccont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	//Debugging command
+	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+
+	for _, pod := range pods.Items {
+
+		if pod.Spec.HostIPC {
+			p := Finding{Check: "hostipc", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
+			//fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
+			hostipccont = append(hostipccont, p)
+		}
+	}
+	report(hostipccont, jsonrep)
+}
+
 func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
