@@ -21,6 +21,7 @@ type Finding struct {
 	Pod          string
 	Container    string   `json:",omitempty"`
 	Capabilities []string `json:",omitempty"`
+	Hostport     int      `json:",omitempty"`
 }
 
 func Hostnet(options *pflag.FlagSet) {
@@ -305,6 +306,59 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 	report(capdropped, jsonrep)
 }
 
+func HostPorts(options *pflag.FlagSet) {
+	var hostports []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	jsonrep, _ := options.GetBool("jsonrep")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			//Does the container have ports specified
+			cports := container.Ports != nil
+			if cports {
+				for _, port := range container.Ports {
+					// Is the port a host port
+					if port.HostPort != 0 {
+						p := Finding{Check: "Host Ports", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Hostport: int(port.HostPort)}
+						hostports = append(hostports, p)
+					}
+				}
+			}
+		}
+		for _, init_container := range pod.Spec.InitContainers {
+			//Does the container have ports specified
+			cports := init_container.Ports != nil
+			if cports {
+				for _, port := range init_container.Ports {
+					// Is the port a host port
+					if port.HostPort != 0 {
+						p := Finding{Check: "Host Ports", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Hostport: int(port.HostPort)}
+						hostports = append(hostports, p)
+					}
+				}
+			}
+		}
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			//Does the container have ports specified
+			cports := eph_container.Ports != nil
+			if cports {
+				for _, port := range eph_container.Ports {
+					// Is the port a host port
+					if port.HostPort != 0 {
+						p := Finding{Check: "Host Ports", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Hostport: int(port.HostPort)}
+						hostports = append(hostports, p)
+					}
+				}
+			}
+		}
+	}
+	report(hostports, jsonrep)
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -332,6 +386,8 @@ func report(f []Finding, jsonrep bool) {
 					fmt.Printf("namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Dropped Capabilities":
 					fmt.Printf("namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+				case "Host Ports":
+					fmt.Printf("namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
 				}
 			}
 		} else {
