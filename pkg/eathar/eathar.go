@@ -44,7 +44,7 @@ func Hostnet(options *pflag.FlagSet) {
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
-	report(hostnetcont, jsonrep)
+	report(hostnetcont, jsonrep, "Host Network")
 }
 
 func Hostpid(options *pflag.FlagSet) {
@@ -67,7 +67,7 @@ func Hostpid(options *pflag.FlagSet) {
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
-	report(hostpidcont, jsonrep)
+	report(hostpidcont, jsonrep, "Host PID")
 }
 
 func Hostipc(options *pflag.FlagSet) {
@@ -90,7 +90,7 @@ func Hostipc(options *pflag.FlagSet) {
 			hostipccont = append(hostipccont, p)
 		}
 	}
-	report(hostipccont, jsonrep)
+	report(hostipccont, jsonrep, "Host IPC")
 }
 
 func AllowPrivEsc(options *pflag.FlagSet) {
@@ -137,7 +137,7 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 		}
 	}
 
-	report(allowprivesccont, jsonrep)
+	report(allowprivesccont, jsonrep, "Allow Privilege Escalation")
 }
 
 func Privileged(options *pflag.FlagSet) {
@@ -187,7 +187,7 @@ func Privileged(options *pflag.FlagSet) {
 		}
 	}
 	// Just to prove our slice is working
-	report(privcont, jsonrep)
+	report(privcont, jsonrep, "Privileged Container")
 }
 
 func AddedCapabilities(options *pflag.FlagSet) {
@@ -245,7 +245,7 @@ func AddedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capadded, jsonrep)
+	report(capadded, jsonrep, "Added Capabilities")
 }
 
 func DroppedCapabilities(options *pflag.FlagSet) {
@@ -303,7 +303,7 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capdropped, jsonrep)
+	report(capdropped, jsonrep, "Dropped Capabilities")
 }
 
 func HostPorts(options *pflag.FlagSet) {
@@ -356,7 +356,7 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(hostports, jsonrep)
+	report(hostports, jsonrep, "Host Ports")
 }
 
 // This is our function for connecting to the cluster
@@ -372,10 +372,10 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	return clientset
 }
 
-func report(f []Finding, jsonrep bool) {
+func report(f []Finding, jsonrep bool, check string) {
 	if !jsonrep {
+		fmt.Printf("Findings for the %s check\n", check)
 		if f != nil {
-			fmt.Printf("Findings for the %s check\n", f[0].Check)
 			for _, i := range f {
 				switch i.Check {
 				case "hostpid", "hostnet":
@@ -393,6 +393,7 @@ func report(f []Finding, jsonrep bool) {
 		} else {
 			fmt.Println("No findings!")
 		}
+		fmt.Println("")
 	} else {
 
 		js, err := json.MarshalIndent(f, "", "  ")
