@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/spf13/pflag"
@@ -27,7 +28,6 @@ type Finding struct {
 func Hostnet(options *pflag.FlagSet) {
 	var hostnetcont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -44,13 +44,12 @@ func Hostnet(options *pflag.FlagSet) {
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
-	report(hostnetcont, jsonrep, "Host Network")
+	report(hostnetcont, options, "Host Network")
 }
 
 func Hostpid(options *pflag.FlagSet) {
 	var hostpidcont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -67,13 +66,12 @@ func Hostpid(options *pflag.FlagSet) {
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
-	report(hostpidcont, jsonrep, "Host PID")
+	report(hostpidcont, options, "Host PID")
 }
 
 func Hostipc(options *pflag.FlagSet) {
 	var hostipccont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -90,13 +88,12 @@ func Hostipc(options *pflag.FlagSet) {
 			hostipccont = append(hostipccont, p)
 		}
 	}
-	report(hostipccont, jsonrep, "Host IPC")
+	report(hostipccont, options, "Host IPC")
 }
 
 func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -137,13 +134,12 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 		}
 	}
 
-	report(allowprivesccont, jsonrep, "Allow Privilege Escalation")
+	report(allowprivesccont, options, "Allow Privilege Escalation")
 }
 
 func Privileged(options *pflag.FlagSet) {
 	var privcont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -187,13 +183,12 @@ func Privileged(options *pflag.FlagSet) {
 		}
 	}
 	// Just to prove our slice is working
-	report(privcont, jsonrep, "Privileged Container")
+	report(privcont, options, "Privileged Container")
 }
 
 func AddedCapabilities(options *pflag.FlagSet) {
 	var capadded []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -245,13 +240,12 @@ func AddedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capadded, jsonrep, "Added Capabilities")
+	report(capadded, options, "Added Capabilities")
 }
 
 func DroppedCapabilities(options *pflag.FlagSet) {
 	var capdropped []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -303,13 +297,12 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capdropped, jsonrep, "Dropped Capabilities")
+	report(capdropped, options, "Dropped Capabilities")
 }
 
 func HostPorts(options *pflag.FlagSet) {
 	var hostports []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
-	jsonrep, _ := options.GetBool("jsonrep")
 	clientset := connectToCluster(kubeconfig)
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -356,7 +349,7 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(hostports, jsonrep, "Host Ports")
+	report(hostports, options, "Host Ports")
 }
 
 // This is our function for connecting to the cluster
@@ -372,22 +365,32 @@ func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	return clientset
 }
 
-func report(f []Finding, jsonrep bool, check string) {
+func report(f []Finding, options *pflag.FlagSet, check string) {
+	jsonrep, _ := options.GetBool("jsonrep")
+	file, _ := options.GetString("file")
+
 	if !jsonrep {
-		fmt.Printf("Findings for the %s check\n", check)
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+
+		fmt.Fprintf(rep, "Findings for the %s check\n", check)
 		if f != nil {
 			for _, i := range f {
 				switch i.Check {
 				case "hostpid", "hostnet":
-					fmt.Printf("namespace %s : pod %s\n", i.Namespace, i.Pod)
+					fmt.Fprintf(rep, "namespace %s : pod %s\n", i.Namespace, i.Pod)
 				case "privileged", "allowprivesc":
-					fmt.Printf("namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 				case "Added Capabilities":
-					fmt.Printf("namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Dropped Capabilities":
-					fmt.Printf("namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Host Ports":
-					fmt.Printf("namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
 				}
 			}
 		} else {
@@ -395,12 +398,19 @@ func report(f []Finding, jsonrep bool, check string) {
 		}
 		fmt.Println("")
 	} else {
-
-		js, err := json.MarshalIndent(f, "", "  ")
-		if err != nil {
-			log.Fatal(err)
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
 		}
-		fmt.Println(string(js))
+		if f != nil {
+			js, err := json.MarshalIndent(f, "", "  ")
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Fprintln(rep, string(js))
+		}
 	}
 
 }
