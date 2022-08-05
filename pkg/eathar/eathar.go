@@ -394,9 +394,9 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 				}
 			}
 		} else {
-			fmt.Println("No findings!")
+			fmt.Fprintln(rep, "No findings!")
 		}
-		fmt.Println("")
+		fmt.Fprintln(rep, "")
 	} else {
 		var rep *os.File
 		if file != "" {
