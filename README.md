@@ -20,7 +20,10 @@ At the moment here's the things it can check for
 
 ## Reporting
 
-There's two options for reporting. The first (which is the default) is just to report to STDOUT . The other option specified with `-j` is to output JSON to STDOUT. File output is on the ToDo list :)
+By Default reporting is to STDOUT in text format. There's a couple of options for changing that
+
+`-j` will output to JSON
+`-f <FILENAME>` sends output to a file (`.txt` or `.json` gets appended to the name specified)
 
 ## Name
 
