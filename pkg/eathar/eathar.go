@@ -91,6 +91,24 @@ func Hostipc(options *pflag.FlagSet) {
 	report(hostipccont, options, "Host IPC")
 }
 
+func HostProcess(options *pflag.FlagSet) {
+	var hostprocesscont []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		hostProcessPod := pod.Spec.SecurityContext.WindowsOptions != nil && *pod.Spec.SecurityContext.WindowsOptions.HostProcess
+		if hostProcessPod {
+			p := Finding{Check: "HostProcess", Namespace: pod.Namespace, Pod: pod.Name}
+			hostprocesscont = append(hostprocesscont, p)
+		}
+	}
+	report(hostprocesscont, options, "Host Process")
+}
+
 func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
@@ -383,7 +401,7 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 				switch i.Check {
 				case "hostpid", "hostnet":
 					fmt.Fprintf(rep, "namespace %s : pod %s\n", i.Namespace, i.Pod)
-				case "privileged", "allowprivesc":
+				case "privileged", "allowprivesc", "HostProcess":
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 				case "Added Capabilities":
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
