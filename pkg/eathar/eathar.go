@@ -33,14 +33,10 @@ func Hostnet(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Debugging command
-	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostNetwork {
-			// We set the container to blank as there's no container for this finding
-			p := Finding{Check: "hostnet", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
-			//fmt.Printf("Namespace %s - Pod %s is using Host networking\n", p.namespace, p.pod)
+			p := Finding{Check: "hostnet", Namespace: pod.Namespace, Pod: pod.Name}
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
@@ -55,14 +51,11 @@ func Hostpid(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Debugging command
-	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostPID {
 			p := Finding{Check: "hostpid", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
-			//fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
@@ -77,14 +70,11 @@ func Hostipc(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Debugging command
-	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostIPC {
 			p := Finding{Check: "hostipc", Namespace: pod.Namespace, Pod: pod.Name, Container: ""}
-			//fmt.Printf("Namespace %s - Pod %s is using Host PID\n", p.namespace, p.pod)
 			hostipccont = append(hostipccont, p)
 		}
 	}
@@ -105,6 +95,27 @@ func HostProcess(options *pflag.FlagSet) {
 			p := Finding{Check: "HostProcess", Namespace: pod.Namespace, Pod: pod.Name}
 			hostprocesscont = append(hostprocesscont, p)
 		}
+		for _, container := range pod.Spec.Containers {
+			hostProcessCont := container.SecurityContext != nil && container.SecurityContext.WindowsOptions != nil && *container.SecurityContext.WindowsOptions.HostProcess
+			if hostProcessCont {
+				p := Finding{Check: "HostProcess", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
+				hostprocesscont = append(hostprocesscont, p)
+			}
+		}
+		for _, init_container := range pod.Spec.InitContainers {
+			hostProcessCont := init_container.SecurityContext != nil && init_container.SecurityContext.WindowsOptions != nil && *init_container.SecurityContext.WindowsOptions.HostProcess
+			if hostProcessCont {
+				p := Finding{Check: "HostProcess", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
+				hostprocesscont = append(hostprocesscont, p)
+			}
+		}
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			hostProcessCont := eph_container.SecurityContext != nil && eph_container.SecurityContext.WindowsOptions != nil && *eph_container.SecurityContext.WindowsOptions.HostProcess
+			if hostProcessCont {
+				p := Finding{Check: "HostProcess", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
+				hostprocesscont = append(hostprocesscont, p)
+			}
+		}
 	}
 	report(hostprocesscont, options, "Host Process")
 }
@@ -117,8 +128,6 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Debugging command
-	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
@@ -126,27 +135,20 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 			allowPrivilegeEscalation := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
 				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
 				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
 		for _, init_container := range pod.Spec.InitContainers {
-			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
-			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
 			allowPrivilegeEscalation := (init_container.SecurityContext == nil) || (init_container.SecurityContext != nil && init_container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
 				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
 				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
 		for _, eph_container := range pod.Spec.EphemeralContainers {
-			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
-			// We don't catch the case of someone explicitly setting it to true, but that seems unlikely
 			allowPrivilegeEscalation := (eph_container.SecurityContext == nil) || (eph_container.SecurityContext != nil && eph_container.SecurityContext.AllowPrivilegeEscalation == nil)
 			if allowPrivilegeEscalation {
 				p := Finding{Check: "allowprivesc", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container: %s does not block privilege escalation\n", p.namespace, p.pod, p.container)
 				allowprivesccont = append(allowprivesccont, p)
 			}
 		}
@@ -163,44 +165,29 @@ func Privileged(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//Debugging command
-	//fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
-			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
 			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
 			if privileged_container {
-				// So we create a new privileged struct from our matching container
 				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
-				//And we append it to our slice of all our privileged containers
 				privcont = append(privcont, p)
 			}
 		}
 		for _, init_container := range pod.Spec.InitContainers {
-			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
 			privileged_container := init_container.SecurityContext != nil && init_container.SecurityContext.Privileged != nil && *init_container.SecurityContext.Privileged
 			if privileged_container {
-				// So we create a new privileged struct from our matching container
 				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
-				//And we append it to our slice of all our privileged containers
 				privcont = append(privcont, p)
 			}
 		}
 		for _, eph_container := range pod.Spec.EphemeralContainers {
-			// if you try to check privileged for nil on it's own, it doesn't work you need to check security context too
 			privileged_container := eph_container.SecurityContext != nil && eph_container.SecurityContext.Privileged != nil && *eph_container.SecurityContext.Privileged
 			if privileged_container {
-				// So we create a new privileged struct from our matching container
 				p := Finding{Check: "privileged", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
-				//fmt.Printf("Namespace: %s - Pod: %s - Container  : %s is running as privileged \n", p.namespace, p.pod, p.container)
-				//And we append it to our slice of all our privileged containers
 				privcont = append(privcont, p)
 			}
 		}
 	}
-	// Just to prove our slice is working
 	report(privcont, options, "Privileged Container")
 }
 
@@ -216,45 +203,37 @@ func AddedCapabilities(options *pflag.FlagSet) {
 		for _, container := range pod.Spec.Containers {
 			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Add != nil
 			if cap_added {
-				//Need to convert the capabilities struct to strings, I think.
+				//Need to convert the capabilities struct to strings.
 				var added_caps []string
 				for _, cap := range container.SecurityContext.Capabilities.Add {
 					added_caps = append(added_caps, string(cap))
 				}
 				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Capabilities: added_caps}
 				capadded = append(capadded, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 
 		for _, init_container := range pod.Spec.InitContainers {
 			cap_added := init_container.SecurityContext != nil && init_container.SecurityContext.Capabilities != nil && init_container.SecurityContext.Capabilities.Add != nil
 			if cap_added {
-				//Need to convert the capabilities struct to strings, I think.
 				var added_caps []string
 				for _, cap := range init_container.SecurityContext.Capabilities.Add {
 					added_caps = append(added_caps, string(cap))
 				}
 				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Capabilities: added_caps}
 				capadded = append(capadded, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 
 		for _, eph_container := range pod.Spec.EphemeralContainers {
 			cap_added := eph_container.SecurityContext != nil && eph_container.SecurityContext.Capabilities != nil && eph_container.SecurityContext.Capabilities.Add != nil
 			if cap_added {
-				//Need to convert the capabilities struct to strings, I think.
 				var added_caps []string
 				for _, cap := range eph_container.SecurityContext.Capabilities.Add {
 					added_caps = append(added_caps, string(cap))
 				}
 				p := Finding{Check: "Added Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Capabilities: added_caps}
 				capadded = append(capadded, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 	}
@@ -273,45 +252,36 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 		for _, container := range pod.Spec.Containers {
 			cap_dropped := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Drop != nil
 			if cap_dropped {
-				//Need to convert the capabilities struct to strings, I think.
 				var dropped_caps []string
 				for _, cap := range container.SecurityContext.Capabilities.Drop {
 					dropped_caps = append(dropped_caps, string(cap))
 				}
 				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name, Capabilities: dropped_caps}
 				capdropped = append(capdropped, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 
 		for _, init_container := range pod.Spec.InitContainers {
 			cap_dropped := init_container.SecurityContext != nil && init_container.SecurityContext.Capabilities != nil && init_container.SecurityContext.Capabilities.Drop != nil
 			if cap_dropped {
-				//Need to convert the capabilities struct to strings, I think.
 				var dropped_caps []string
 				for _, cap := range init_container.SecurityContext.Capabilities.Drop {
 					dropped_caps = append(dropped_caps, string(cap))
 				}
 				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Capabilities: dropped_caps}
 				capdropped = append(capdropped, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 
 		for _, eph_container := range pod.Spec.EphemeralContainers {
 			cap_dropped := eph_container.SecurityContext != nil && eph_container.SecurityContext.Capabilities != nil && eph_container.SecurityContext.Capabilities.Drop != nil
 			if cap_dropped {
-				//Need to convert the capabilities struct to strings, I think.
 				var dropped_caps []string
 				for _, cap := range eph_container.SecurityContext.Capabilities.Drop {
 					dropped_caps = append(dropped_caps, string(cap))
 				}
 				p := Finding{Check: "Dropped Capabilities", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Capabilities: dropped_caps}
 				capdropped = append(capdropped, p)
-				//debugging command
-				//fmt.Println(strings.Join(added_caps[:], ","))
 			}
 		}
 	}
@@ -341,11 +311,9 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 		for _, init_container := range pod.Spec.InitContainers {
-			//Does the container have ports specified
 			cports := init_container.Ports != nil
 			if cports {
 				for _, port := range init_container.Ports {
-					// Is the port a host port
 					if port.HostPort != 0 {
 						p := Finding{Check: "Host Ports", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name, Hostport: int(port.HostPort)}
 						hostports = append(hostports, p)
@@ -354,11 +322,9 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 		for _, eph_container := range pod.Spec.EphemeralContainers {
-			//Does the container have ports specified
 			cports := eph_container.Ports != nil
 			if cports {
 				for _, port := range eph_container.Ports {
-					// Is the port a host port
 					if port.HostPort != 0 {
 						p := Finding{Check: "Host Ports", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name, Hostport: int(port.HostPort)}
 						hostports = append(hostports, p)
@@ -399,10 +365,12 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 		if f != nil {
 			for _, i := range f {
 				switch i.Check {
-				case "hostpid", "hostnet":
-					fmt.Fprintf(rep, "namespace %s : pod %s\n", i.Namespace, i.Pod)
-				case "privileged", "allowprivesc", "HostProcess":
-					fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+				case "hostpid", "hostnet", "privileged", "allowprivesc", "HostProcess":
+					if i.Container != "" {
+						fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
+					} else {
+						fmt.Fprintf(rep, "namespace %s : pod %s\n", i.Namespace, i.Pod)
+					}
 				case "Added Capabilities":
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Dropped Capabilities":
