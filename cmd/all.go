@@ -24,6 +24,8 @@ var allCmd = &cobra.Command{
 		eathar.Hostpid(options)
 		eathar.HostPorts(options)
 		eathar.Privileged(options)
+		eathar.HostPath(options)
+		eathar.HostProcess(options)
 	},
 }
 

@@ -23,6 +23,8 @@ type Finding struct {
 	Container    string   `json:",omitempty"`
 	Capabilities []string `json:",omitempty"`
 	Hostport     int      `json:",omitempty"`
+	Volume       string   `json:",omitempty"`
+	Path         string   `json:",omitempty"`
 }
 
 func Hostnet(options *pflag.FlagSet) {
@@ -336,6 +338,28 @@ func HostPorts(options *pflag.FlagSet) {
 	report(hostports, options, "Host Ports")
 }
 
+func HostPath(options *pflag.FlagSet) {
+	var hostpath []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		host_path := pod.Spec.Volumes != nil
+		if host_path {
+			for _, vol := range pod.Spec.Volumes {
+				if vol.HostPath != nil {
+					p := Finding{Check: "Host Path", Namespace: pod.Namespace, Pod: pod.Name, Volume: vol.Name, Path: vol.HostPath.Path}
+					hostpath = append(hostpath, p)
+				}
+			}
+		}
+	}
+	report(hostpath, options, "Host Path")
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -377,6 +401,8 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Host Ports":
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
+				case "Host Path":
+					fmt.Fprintf(rep, "namespace %s : pod %s : volume %s : path %s\n", i.Namespace, i.Pod, i.Volume, i.Path)
 				}
 			}
 		} else {
