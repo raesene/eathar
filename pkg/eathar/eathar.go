@@ -342,6 +342,24 @@ func HostPorts(options *pflag.FlagSet) {
 	report(hostports, options, "Host Ports")
 }
 
+func Seccomp(options *pflag.FlagSet) {
+	var seccomp []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		unconfined_pod := (pod.Spec.SecurityContext == nil) || (pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.SeccompProfile == nil) || (pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.SeccompProfile == nil && pod.Spec.SecurityContext.SeccompProfile.Type == "Unconfined")
+		if unconfined_pod {
+			p := Finding{Check: "Seccomp Disabled", Namespace: pod.Namespace, Pod: pod.Name}
+			seccomp = append(seccomp, p)
+		}
+	}
+	report(seccomp, options, "Seccomp Disabled")
+}
+
 func HostPath(options *pflag.FlagSet) {
 	var hostpath []Finding
 	kubeconfig, _ := options.GetString("kubeconfig")
@@ -393,7 +411,7 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 		if f != nil {
 			for _, i := range f {
 				switch i.Check {
-				case "hostpid", "hostnet", "privileged", "allowprivesc", "HostProcess":
+				case "hostpid", "hostnet", "privileged", "allowprivesc", "HostProcess", "Seccomp Disabled":
 					if i.Container != "" {
 						fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 					} else {
