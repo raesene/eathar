@@ -350,11 +350,32 @@ func Seccomp(options *pflag.FlagSet) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// The logic here is that if the pod is unconfined & the container is unconfined, it's unconfined.
+	// In theory if all the containers in the pod are unconfined we could just mark it at pod level, but that's more complex :P
 	for _, pod := range pods.Items {
 		unconfined_pod := (pod.Spec.SecurityContext == nil) || (pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.SeccompProfile == nil) || (pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.SeccompProfile == nil && pod.Spec.SecurityContext.SeccompProfile.Type == "Unconfined")
 		if unconfined_pod {
-			p := Finding{Check: "Seccomp Disabled", Namespace: pod.Namespace, Pod: pod.Name}
-			seccomp = append(seccomp, p)
+			for _, container := range pod.Spec.Containers {
+				unconfined_container := (container.SecurityContext == nil) || (container.SecurityContext != nil && container.SecurityContext.SeccompProfile == nil) || (container.SecurityContext != nil && container.SecurityContext.SeccompProfile == nil && container.SecurityContext.SeccompProfile.Type == "Unconfined")
+				if unconfined_container {
+					p := Finding{Check: "Seccomp Disabled", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
+					seccomp = append(seccomp, p)
+				}
+			}
+			for _, init_container := range pod.Spec.InitContainers {
+				unconfined_init_container := (init_container.SecurityContext == nil) || (init_container.SecurityContext != nil && init_container.SecurityContext.SeccompProfile == nil) || (init_container.SecurityContext != nil && init_container.SecurityContext.SeccompProfile == nil && init_container.SecurityContext.SeccompProfile.Type == "Unconfined")
+				if unconfined_init_container {
+					p := Finding{Check: "Seccomp Disabled", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
+					seccomp = append(seccomp, p)
+				}
+			}
+			for _, eph_container := range pod.Spec.EphemeralContainers {
+				unconfined_eph_container := (eph_container.SecurityContext == nil) || (eph_container.SecurityContext != nil && eph_container.SecurityContext.SeccompProfile == nil) || (eph_container.SecurityContext != nil && eph_container.SecurityContext.SeccompProfile == nil && eph_container.SecurityContext.SeccompProfile.Type == "Unconfined")
+				if unconfined_eph_container {
+					p := Finding{Check: "Seccomp Disabled", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
+					seccomp = append(seccomp, p)
+				}
+			}
 		}
 	}
 	report(seccomp, options, "Seccomp Disabled")
