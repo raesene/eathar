@@ -16,6 +16,8 @@ At the moment here's the things it can check for
 - hostnet - Provides a list of pods in the cluster configured to use Host Networking.
 - hostipc - Provides a list of pods in the cluster configured to use Host IPC.
 - hostports - Provides a list of containers in the cluster configured to use Host Ports.
+- hostpath - Provides a list of pods that mount host path volumes.
+- hostprocess - Provides a list of Windows pods and containers that run with hostprocess rights.
 - privileged - Provides a list of containers in the cluster configured to be privileged.
 - allowprivesc - Provides a list of containers in the cluster configured to allow privilege escalation.
 - capadded - Provides a list of containers which have capabilities added over the default set.

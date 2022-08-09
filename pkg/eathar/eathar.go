@@ -1,5 +1,9 @@
 package eathar
 
+/*
+Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
+
+*/
 import (
 	"context"
 	"encoding/json"

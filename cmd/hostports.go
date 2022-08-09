@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
 
 */
 package cmd
