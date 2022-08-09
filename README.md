@@ -22,6 +22,7 @@ At the moment here's the things it can check for
 - allowprivesc - Provides a list of containers in the cluster configured to allow privilege escalation.
 - capadded - Provides a list of containers which have capabilities added over the default set.
 - cadropped - Provides a list of containers which have capabilities dropped from the default set.
+- seccomp - Look for containers which have no seccomp profile specified or explicitly set unconfined.
 - all - Run all configured checks
 
 ## Reporting
