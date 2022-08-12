@@ -17,6 +17,7 @@ var allCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.AllowPrivEsc(options)
+		eathar.Apparmor(options)
 		eathar.AddedCapabilities(options)
 		eathar.DroppedCapabilities(options)
 		eathar.Hostipc(options)

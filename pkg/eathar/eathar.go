@@ -403,6 +403,28 @@ func HostPath(options *pflag.FlagSet) {
 	report(hostpath, options, "Host Path")
 }
 
+func Apparmor(options *pflag.FlagSet) {
+	var apparmor []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		// Default should be apparmor is set (well it is for docker anyway), so we only care if it's explicitly set to unconfined
+		if pod.Annotations != nil {
+			for key, val := range pod.Annotations {
+				if val == "unconfined" && strings.Split(key, "/")[0] == "container.apparmor.security.beta.kubernetes.io" {
+					p := Finding{Check: "Apparmor Disabled", Namespace: pod.Namespace, Pod: pod.Name}
+					apparmor = append(apparmor, p)
+				}
+			}
+		}
+	}
+	report(apparmor, options, "Apparmor Disabled")
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
