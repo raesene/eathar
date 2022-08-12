@@ -23,6 +23,7 @@ At the moment here's the things it can check for
 - capadded - Provides a list of containers which have capabilities added over the default set.
 - cadropped - Provides a list of containers which have capabilities dropped from the default set.
 - seccomp - Look for containers which have no seccomp profile specified or explicitly set unconfined.
+- apparmor - Look for containers where the apparmor profile is explicitly set to unconfined.
 - all - Run all configured checks
 
 ## Reporting
