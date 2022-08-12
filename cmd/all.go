@@ -21,11 +21,13 @@ var allCmd = &cobra.Command{
 		eathar.DroppedCapabilities(options)
 		eathar.Hostipc(options)
 		eathar.Hostnet(options)
+		eathar.HostPath(options)
 		eathar.Hostpid(options)
 		eathar.HostPorts(options)
+		eathar.HostProcess(options
 		eathar.Privileged(options)
-		eathar.HostPath(options)
-		eathar.HostProcess(options)
+		eathar.Seccomp(options)
+		)
 	},
 }
 
