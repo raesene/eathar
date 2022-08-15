@@ -28,6 +28,7 @@ var allCmd = &cobra.Command{
 		eathar.HostProcess(options)
 		eathar.Privileged(options)
 		eathar.Seccomp(options)
+		eathar.Procmount(options)
 	},
 }
 

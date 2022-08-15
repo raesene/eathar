@@ -425,6 +425,40 @@ func Apparmor(options *pflag.FlagSet) {
 	report(apparmor, options, "Apparmor Disabled")
 }
 
+func Procmount(options *pflag.FlagSet) {
+	var unmaskedproc []Finding
+	kubeconfig, _ := options.GetString("kubeconfig")
+	clientset := connectToCluster(kubeconfig)
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			unmask := container.SecurityContext != nil && container.SecurityContext.ProcMount != nil && *container.SecurityContext.ProcMount == "Unmasked"
+			if unmask {
+				p := Finding{Check: "Unmasked procmount", Namespace: pod.Namespace, Pod: pod.Name, Container: container.Name}
+				unmaskedproc = append(unmaskedproc, p)
+			}
+		}
+		for _, init_container := range pod.Spec.InitContainers {
+			unmask := init_container.SecurityContext != nil && init_container.SecurityContext.ProcMount != nil && *init_container.SecurityContext.ProcMount == "Unmasked"
+			if unmask {
+				p := Finding{Check: "Unmasked procmount", Namespace: pod.Namespace, Pod: pod.Name, Container: init_container.Name}
+				unmaskedproc = append(unmaskedproc, p)
+			}
+		}
+		for _, eph_container := range pod.Spec.EphemeralContainers {
+			unmask := eph_container.SecurityContext != nil && eph_container.SecurityContext.ProcMount != nil && *eph_container.SecurityContext.ProcMount == "Unmasked"
+			if unmask {
+				p := Finding{Check: "Unmasked procmount", Namespace: pod.Namespace, Pod: pod.Name, Container: eph_container.Name}
+				unmaskedproc = append(unmaskedproc, p)
+			}
+		}
+	}
+	report(unmaskedproc, options, "Unmasked Procmount")
+}
+
 // This is our function for connecting to the cluster
 func connectToCluster(kubeconfig string) *kubernetes.Clientset {
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
@@ -454,7 +488,7 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 		if f != nil {
 			for _, i := range f {
 				switch i.Check {
-				case "hostpid", "hostnet", "privileged", "allowprivesc", "HostProcess", "Seccomp Disabled":
+				case "hostpid", "hostnet", "hostipc", "privileged", "allowprivesc", "HostProcess", "Seccomp Disabled", "Unmasked Procmount", "Apparmor Disabled":
 					if i.Container != "" {
 						fmt.Fprintf(rep, "namespace %s : pod %s : container %s\n", i.Namespace, i.Pod, i.Container)
 					} else {
