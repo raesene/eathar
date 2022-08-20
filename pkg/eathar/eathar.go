@@ -33,8 +33,10 @@ type Finding struct {
 
 func Hostnet(options *pflag.FlagSet) {
 	var hostnetcont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -51,8 +53,10 @@ func Hostnet(options *pflag.FlagSet) {
 
 func Hostpid(options *pflag.FlagSet) {
 	var hostpidcont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -70,8 +74,10 @@ func Hostpid(options *pflag.FlagSet) {
 
 func Hostipc(options *pflag.FlagSet) {
 	var hostipccont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -89,8 +95,10 @@ func Hostipc(options *pflag.FlagSet) {
 
 func HostProcess(options *pflag.FlagSet) {
 	var hostprocesscont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -128,8 +136,10 @@ func HostProcess(options *pflag.FlagSet) {
 
 func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -165,8 +175,10 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 
 func Privileged(options *pflag.FlagSet) {
 	var privcont []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -199,8 +211,10 @@ func Privileged(options *pflag.FlagSet) {
 
 func AddedCapabilities(options *pflag.FlagSet) {
 	var capadded []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -248,8 +262,10 @@ func AddedCapabilities(options *pflag.FlagSet) {
 
 func DroppedCapabilities(options *pflag.FlagSet) {
 	var capdropped []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -296,8 +312,10 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 
 func HostPorts(options *pflag.FlagSet) {
 	var hostports []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -344,8 +362,10 @@ func HostPorts(options *pflag.FlagSet) {
 
 func Seccomp(options *pflag.FlagSet) {
 	var seccomp []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -383,8 +403,10 @@ func Seccomp(options *pflag.FlagSet) {
 
 func HostPath(options *pflag.FlagSet) {
 	var hostpath []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -405,8 +427,10 @@ func HostPath(options *pflag.FlagSet) {
 
 func Apparmor(options *pflag.FlagSet) {
 	var apparmor []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -427,8 +451,10 @@ func Apparmor(options *pflag.FlagSet) {
 
 func Procmount(options *pflag.FlagSet) {
 	var unmaskedproc []Finding
-	kubeconfig, _ := options.GetString("kubeconfig")
-	clientset := connectToCluster(kubeconfig)
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
@@ -459,17 +485,20 @@ func Procmount(options *pflag.FlagSet) {
 	report(unmaskedproc, options, "Unmasked Procmount")
 }
 
-// This is our function for connecting to the cluster
-func connectToCluster(kubeconfig string) *kubernetes.Clientset {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+func initKubeClient() (*kubernetes.Clientset, error) {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &clientcmd.ConfigOverrides{})
+	config, err := kubeConfig.ClientConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("initKubeClient: failed creating ClientConfig with", err)
+		return nil, err
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("initKubeClient: failed creating Clientset with", err)
+		return nil, err
 	}
-	return clientset
+	return clientset, nil
 }
 
 func report(f []Finding, options *pflag.FlagSet, check string) {

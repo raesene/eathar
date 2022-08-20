@@ -8,7 +8,7 @@ This is a program designed to quickly pull some interesting security related inf
 
 ## Running Eathar
 
-Eathar connects to a Kubernetes cluster, it'll look for a kubeconfig in `~/.kube/config` and use that if found. If you want to specify a different location use the `--kubeconfig` file. within that file it'll use the `current-context` (allowing others is on the ToDo list)
+Eathar connects to a Kubernetes cluster, it works based on whatever you have your current context set to.
 
 At the moment here's the things it can check for
 

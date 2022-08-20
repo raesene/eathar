@@ -30,14 +30,6 @@ func Execute() {
 
 func init() {
 	// Get the home directory for default kubeconfig location
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		os.Exit(1)
-	}
-	// Set the default path for kubeconfig files
-	defaultkubeconfig := homedir + "/.kube/config"
-	rootCmd.PersistentFlags().StringP("kubeconfig", "k", defaultkubeconfig,
-		"Kubeconfig file")
 	rootCmd.PersistentFlags().BoolP("jsonrep", "j", false, "json reporting")
 	rootCmd.PersistentFlags().StringP("file", "f", "", "Report file")
 }
