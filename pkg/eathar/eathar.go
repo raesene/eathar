@@ -8,9 +8,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
@@ -400,12 +401,12 @@ func initKubeClient() (*kubernetes.Clientset, error) {
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &clientcmd.ConfigOverrides{})
 	config, err := kubeConfig.ClientConfig()
 	if err != nil {
-		log.Fatal("initKubeClient: failed creating ClientConfig with", err)
+		log.Printf("initKubeClient: failed creating ClientConfig with", err)
 		return nil, err
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Fatal("initKubeClient: failed creating Clientset with", err)
+		log.Printf("initKubeClient: failed creating Clientset with", err)
 		return nil, err
 	}
 	return clientset, nil
@@ -414,11 +415,11 @@ func initKubeClient() (*kubernetes.Clientset, error) {
 func connectWithPods() *corev1.PodList {
 	clientset, err := initKubeClient()
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	return pods
 }
@@ -469,7 +470,7 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 		if f != nil {
 			js, err := json.MarshalIndent(f, "", "  ")
 			if err != nil {
-				log.Fatal(err)
+				log.Print(err)
 			}
 			fmt.Fprintln(rep, string(js))
 		}
