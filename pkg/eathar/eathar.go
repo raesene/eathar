@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/spf13/pflag"
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -33,14 +34,7 @@ type Finding struct {
 
 func Hostnet(options *pflag.FlagSet) {
 	var hostnetcont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostNetwork {
@@ -53,14 +47,7 @@ func Hostnet(options *pflag.FlagSet) {
 
 func Hostpid(options *pflag.FlagSet) {
 	var hostpidcont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 
 	for _, pod := range pods.Items {
 
@@ -74,14 +61,7 @@ func Hostpid(options *pflag.FlagSet) {
 
 func Hostipc(options *pflag.FlagSet) {
 	var hostipccont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 
 	for _, pod := range pods.Items {
 
@@ -95,14 +75,7 @@ func Hostipc(options *pflag.FlagSet) {
 
 func HostProcess(options *pflag.FlagSet) {
 	var hostprocesscont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		hostProcessPod := pod.Spec.SecurityContext.WindowsOptions != nil && *pod.Spec.SecurityContext.WindowsOptions.HostProcess
 		if hostProcessPod {
@@ -136,14 +109,7 @@ func HostProcess(options *pflag.FlagSet) {
 
 func AllowPrivEsc(options *pflag.FlagSet) {
 	var allowprivesccont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
@@ -175,14 +141,7 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 
 func Privileged(options *pflag.FlagSet) {
 	var privcont []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
@@ -211,14 +170,7 @@ func Privileged(options *pflag.FlagSet) {
 
 func AddedCapabilities(options *pflag.FlagSet) {
 	var capadded []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Add != nil
@@ -262,14 +214,7 @@ func AddedCapabilities(options *pflag.FlagSet) {
 
 func DroppedCapabilities(options *pflag.FlagSet) {
 	var capdropped []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			cap_dropped := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Drop != nil
@@ -312,14 +257,7 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 
 func HostPorts(options *pflag.FlagSet) {
 	var hostports []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			//Does the container have ports specified
@@ -362,14 +300,7 @@ func HostPorts(options *pflag.FlagSet) {
 
 func Seccomp(options *pflag.FlagSet) {
 	var seccomp []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	// The logic here is that if the pod is unconfined & the container is unconfined, it's unconfined.
 	// In theory if all the containers in the pod are unconfined we could just mark it at pod level, but that's more complex :P
 	for _, pod := range pods.Items {
@@ -403,14 +334,7 @@ func Seccomp(options *pflag.FlagSet) {
 
 func HostPath(options *pflag.FlagSet) {
 	var hostpath []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		host_path := pod.Spec.Volumes != nil
 		if host_path {
@@ -427,14 +351,7 @@ func HostPath(options *pflag.FlagSet) {
 
 func Apparmor(options *pflag.FlagSet) {
 	var apparmor []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		// Default should be apparmor is set (well it is for docker anyway), so we only care if it's explicitly set to unconfined
 		if pod.Annotations != nil {
@@ -451,14 +368,7 @@ func Apparmor(options *pflag.FlagSet) {
 
 func Procmount(options *pflag.FlagSet) {
 	var unmaskedproc []Finding
-	clientset, err := initKubeClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+	pods := connectWithPods()
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			unmask := container.SecurityContext != nil && container.SecurityContext.ProcMount != nil && *container.SecurityContext.ProcMount == "Unmasked"
@@ -499,6 +409,18 @@ func initKubeClient() (*kubernetes.Clientset, error) {
 		return nil, err
 	}
 	return clientset, nil
+}
+
+func connectWithPods() *corev1.PodList {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return pods
 }
 
 func report(f []Finding, options *pflag.FlagSet, check string) {
