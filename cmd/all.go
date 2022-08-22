@@ -29,6 +29,7 @@ var allCmd = &cobra.Command{
 		eathar.Privileged(options)
 		eathar.Seccomp(options)
 		eathar.Procmount(options)
+		eathar.Sysctl(options)
 	},
 }
 
