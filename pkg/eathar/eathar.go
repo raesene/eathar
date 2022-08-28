@@ -31,6 +31,7 @@ type Finding struct {
 	Hostport     int      `json:",omitempty"`
 	Volume       string   `json:",omitempty"`
 	Path         string   `json:",omitempty"`
+	Sysctl       string   `json:",omitempty"`
 }
 
 func Hostnet(options *pflag.FlagSet) {
@@ -397,6 +398,30 @@ func Procmount(options *pflag.FlagSet) {
 	report(unmaskedproc, options, "Unmasked Procmount")
 }
 
+func Sysctl(options *pflag.FlagSet) {
+	var sysctls []Finding
+	pods := connectWithPods()
+	for _, pod := range pods.Items {
+		sysctl := pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.Sysctls != nil
+		if sysctl {
+			for _, sys := range pod.Spec.SecurityContext.Sysctls {
+				safe := []string{"kernel.shm_rmid_forced", "net.ipv4.ip_local_port_range", "net.ipv4.ip_unprivileged_port_start", "net.ipv4.tcp_syncookies", "net.ipv4.ping_group_range"}
+				safe_sys := false
+				for _, s := range safe {
+					if sys.Name == s {
+						safe_sys = true
+					}
+				}
+				if !safe_sys {
+					p := Finding{Check: "Unsafe Sysctl", Namespace: pod.Namespace, Sysctl: sys.Name}
+					sysctls = append(sysctls, p)
+				}
+			}
+		}
+	}
+	report(sysctls, options, "Unsafe Sysctl")
+}
+
 func initKubeClient() (*kubernetes.Clientset, error) {
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &clientcmd.ConfigOverrides{})
@@ -455,6 +480,8 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
 				case "Host Path":
 					fmt.Fprintf(rep, "namespace %s : pod %s : volume %s : path %s\n", i.Namespace, i.Pod, i.Volume, i.Path)
+				case "Unsafe Sysctl":
+					fmt.Fprintf(rep, "namespace %s : pod %s : unsafe sysctl %s", i.Namespace, i.Pod, i.Sysctl)
 				}
 			}
 		} else {
