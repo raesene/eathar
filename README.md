@@ -24,6 +24,8 @@ At the moment here's the things it can check for
 - cadropped - Provides a list of containers which have capabilities dropped from the default set.
 - seccomp - Look for containers which have no seccomp profile specified or explicitly set unconfined.
 - apparmor - Look for containers where the apparmor profile is explicitly set to unconfined.
+- procmount - Look for containers with an unmasked proc filesystem mount.
+- sysctl - Look for dangerous sysctls being set
 - all - Run all configured checks
 
 ## Reporting
