@@ -47,6 +47,11 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 					fmt.Fprintf(rep, "namespace %s : pod %s : volume %s : path %s\n", i.Namespace, i.Pod, i.Volume, i.Path)
 				case "Unsafe Sysctl":
 					fmt.Fprintf(rep, "namespace %s : pod %s : unsafe sysctl %s", i.Namespace, i.Pod, i.Sysctl)
+				case "Image List":
+					//fmt.Fprintf(rep, "namespace %s : pod %s : container %s : image %s\n", i.Namespace, i.Pod, i.Container, i.Image)
+					//Let's just print the unique image name
+					fmt.Fprintf(rep, "%s\n", i.Image)
+
 				}
 			}
 		} else {

@@ -12,7 +12,7 @@ import (
 // hostnetCmd represents the hostnet command
 var hostnetCmd = &cobra.Command{
 	Use:   "hostnet",
-	Short: "list pods with host networking",
+	Short: "List pods with host networking",
 	Long: `This command returns a list of all the pods in the cluster
 	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -12,13 +12,10 @@ import (
 // apparmorCmd represents the apparmor command
 var apparmorCmd = &cobra.Command{
 	Use:   "apparmor",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List pods without apparmor profiles",
+	Long: `This command will list pods that do not have apparmor profiles
+	assigned to them. Apparmor is part of the layers of isolation which should be
+	applied to all containers`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.Apparmor(options)

@@ -22,6 +22,7 @@ type Finding struct {
 	Volume       string   `json:",omitempty"`
 	Path         string   `json:",omitempty"`
 	Sysctl       string   `json:",omitempty"`
+	Image        string   `json:",omitempty"`
 }
 
 func Hostnet(options *pflag.FlagSet) {

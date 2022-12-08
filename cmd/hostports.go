@@ -12,13 +12,9 @@ import (
 // hostportsCmd represents the hostports command
 var hostportsCmd = &cobra.Command{
 	Use:   "hostports",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List pods with hostPorts",
+	Long: `This will list any pods with hostPorts. This is a security
+	risk as hostPorts cannot be controlled by the network policy engine`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.HostPorts(options)

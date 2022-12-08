@@ -12,13 +12,9 @@ import (
 // hostpathCmd represents the hostpath command
 var hostpathCmd = &cobra.Command{
 	Use:   "hostpath",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List pods with hostPath volumes",
+	Long: `This will list any pods with hostPath volumes. This is a security
+	risk as it allows the container to access the host filesystem`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.HostPath(options)

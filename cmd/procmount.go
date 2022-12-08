@@ -12,13 +12,9 @@ import (
 // procmountCmd represents the procmount command
 var procmountCmd = &cobra.Command{
 	Use:   "procmount",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "List containers with unmasked proc mounts",
+	Long: `This command lists containers with unmasked proc mounts. This is a security risk as it allows
+	access to the proc filesystem on the host which can contain sensitive information`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.Procmount(options)
