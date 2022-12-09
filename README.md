@@ -1,16 +1,10 @@
 # Eathar
 
-This is a program designed to quickly pull some interesting security related information from Kubernetes clusters. It's primarily written as a learning project for me to practice with Go, so don't expect good code or brilliant functionality!
+This is a program designed to quickly pull some interesting security related information from Kubernetes clusters. There are a couple of categories of checks that have been implemented so far.
 
-## Demo
+## PSS
 
-![Eathar Demo](https://user-images.githubusercontent.com/68317/183242375-5420ce90-26aa-4d36-bae0-1583dfec1dd8.gif)
-
-## Running Eathar
-
-Eathar connects to a Kubernetes cluster, it works based on whatever you have your current context set to.
-
-At the moment here's the things it can check for
+Eathar can check containers running in the cluster for various things that are on the [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) List
 
 - hostpid - Provides a list of pods in the cluster configured to use Host PID.
 - hostnet - Provides a list of pods in the cluster configured to use Host Networking.
@@ -26,7 +20,21 @@ At the moment here's the things it can check for
 - apparmor - Look for containers where the apparmor profile is explicitly set to unconfined.
 - procmount - Look for containers with an unmasked proc filesystem mount.
 - sysctl - Look for dangerous sysctls being set
-- all - Run all configured checks
+- allPSS - Run all configured checks
+
+## Image List
+
+Eathar can also provide a unique list of images used in the cluster, which could be useful for checking versions or feeding into a vulnerability scanner (e.g. trivy)
+
+- imagelist - Provides a list of images used in the cluster.
+
+## Demo
+
+![Eathar Demo](https://user-images.githubusercontent.com/68317/183242375-5420ce90-26aa-4d36-bae0-1583dfec1dd8.gif)
+
+## Running Eathar
+
+Eathar connects to a Kubernetes cluster, it works based on whatever you have your current context set to.
 
 ## Reporting
 
