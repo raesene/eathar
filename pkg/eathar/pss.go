@@ -35,7 +35,7 @@ func Hostnet(options *pflag.FlagSet) {
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
-	report(hostnetcont, options, "Host Network")
+	reportPSS(hostnetcont, options, "Host Network")
 }
 
 func Hostpid(options *pflag.FlagSet) {
@@ -49,7 +49,7 @@ func Hostpid(options *pflag.FlagSet) {
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
-	report(hostpidcont, options, "Host PID")
+	reportPSS(hostpidcont, options, "Host PID")
 }
 
 func Hostipc(options *pflag.FlagSet) {
@@ -63,7 +63,7 @@ func Hostipc(options *pflag.FlagSet) {
 			hostipccont = append(hostipccont, p)
 		}
 	}
-	report(hostipccont, options, "Host IPC")
+	reportPSS(hostipccont, options, "Host IPC")
 }
 
 func HostProcess(options *pflag.FlagSet) {
@@ -97,7 +97,7 @@ func HostProcess(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(hostprocesscont, options, "Host Process")
+	reportPSS(hostprocesscont, options, "Host Process")
 }
 
 func AllowPrivEsc(options *pflag.FlagSet) {
@@ -129,7 +129,7 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 		}
 	}
 
-	report(allowprivesccont, options, "Allow Privilege Escalation")
+	reportPSS(allowprivesccont, options, "Allow Privilege Escalation")
 }
 
 func Privileged(options *pflag.FlagSet) {
@@ -158,7 +158,7 @@ func Privileged(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(privcont, options, "Privileged Container")
+	reportPSS(privcont, options, "Privileged Container")
 }
 
 func AddedCapabilities(options *pflag.FlagSet) {
@@ -202,7 +202,7 @@ func AddedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capadded, options, "Added Capabilities")
+	reportPSS(capadded, options, "Added Capabilities")
 }
 
 func DroppedCapabilities(options *pflag.FlagSet) {
@@ -245,7 +245,7 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(capdropped, options, "Dropped Capabilities")
+	reportPSS(capdropped, options, "Dropped Capabilities")
 }
 
 func HostPorts(options *pflag.FlagSet) {
@@ -288,7 +288,7 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(hostports, options, "Host Ports")
+	reportPSS(hostports, options, "Host Ports")
 }
 
 func Seccomp(options *pflag.FlagSet) {
@@ -323,7 +323,7 @@ func Seccomp(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(seccomp, options, "Seccomp Disabled")
+	reportPSS(seccomp, options, "Seccomp Disabled")
 }
 
 func HostPath(options *pflag.FlagSet) {
@@ -340,7 +340,7 @@ func HostPath(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(hostpath, options, "Host Path")
+	reportPSS(hostpath, options, "Host Path")
 }
 
 func Apparmor(options *pflag.FlagSet) {
@@ -357,7 +357,7 @@ func Apparmor(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(apparmor, options, "Apparmor Disabled")
+	reportPSS(apparmor, options, "Apparmor Disabled")
 }
 
 func Procmount(options *pflag.FlagSet) {
@@ -386,7 +386,7 @@ func Procmount(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(unmaskedproc, options, "Unmasked Procmount")
+	reportPSS(unmaskedproc, options, "Unmasked Procmount")
 }
 
 func Sysctl(options *pflag.FlagSet) {
@@ -410,5 +410,5 @@ func Sysctl(options *pflag.FlagSet) {
 			}
 		}
 	}
-	report(sysctls, options, "Unsafe Sysctl")
+	reportPSS(sysctls, options, "Unsafe Sysctl")
 }

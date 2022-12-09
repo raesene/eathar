@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-func report(f []Finding, options *pflag.FlagSet, check string) {
+func reportPSS(f []Finding, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 
@@ -74,4 +74,42 @@ func report(f []Finding, options *pflag.FlagSet, check string) {
 		}
 	}
 
+}
+
+func reportImage(f []string, options *pflag.FlagSet, check string) {
+	jsonrep, _ := options.GetBool("jsonrep")
+	file, _ := options.GetString("file")
+
+	if !jsonrep {
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+
+		fmt.Fprintf(rep, "Findings for the %s check\n", check)
+		if f != nil {
+			for _, i := range f {
+				fmt.Fprintf(rep, "%s\n", i)
+			}
+		} else {
+			fmt.Fprintln(rep, "No findings!")
+		}
+		fmt.Fprintln(rep, "")
+	} else {
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		if f != nil {
+			js, err := json.MarshalIndent(f, "", "  ")
+			if err != nil {
+				log.Print(err)
+			}
+			fmt.Fprintln(rep, string(js))
+		}
+	}
 }

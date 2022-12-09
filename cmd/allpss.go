@@ -10,10 +10,10 @@ import (
 )
 
 // allCmd represents the all command
-var allCmd = &cobra.Command{
-	Use:   "all",
-	Short: "Runs all the checks",
-	Long:  `This command runs all the available checks on the target cluster`,
+var allPSSCmd = &cobra.Command{
+	Use:   "allPSS",
+	Short: "Runs all the PSS checks",
+	Long:  `This command runs all the available Pod Security checks on the target cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.AllowPrivEsc(options)
@@ -34,5 +34,5 @@ var allCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(allCmd)
+	rootCmd.AddCommand(allPSSCmd)
 }
