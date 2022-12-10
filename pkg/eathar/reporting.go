@@ -13,6 +13,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/pflag"
+	v1 "k8s.io/api/rbac/v1"
 )
 
 func reportPSS(f []Finding, options *pflag.FlagSet, check string) {
@@ -110,6 +111,47 @@ func reportImage(f []string, options *pflag.FlagSet, check string) {
 				log.Print(err)
 			}
 			fmt.Fprintln(rep, string(js))
+		}
+	}
+}
+
+func reportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check string) {
+	jsonrep, _ := options.GetBool("jsonrep")
+	file, _ := options.GetString("file")
+
+	if !jsonrep {
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+
+		fmt.Fprintf(rep, "Findings for the %s check\n", check)
+		if f.Items != nil {
+			for _, i := range f.Items {
+				fmt.Fprintf(rep, "ClusterRoleBinding %s\n", i.Name)
+				fmt.Fprintf(rep, "Subjects:\n")
+				for _, s := range i.Subjects {
+					fmt.Fprintf(rep, "  Kind: %s, Name: %s, Namespace: %s\n", s.Kind, s.Name, s.Namespace)
+				}
+				fmt.Fprintf(rep, "RoleRef:\n")
+				fmt.Fprintf(rep, "  Kind: %s, Name: %s, APIGroup: %s\n", i.RoleRef.Kind, i.RoleRef.Name, i.RoleRef.APIGroup)
+			}
+		} else {
+			var rep *os.File
+			if file != "" {
+				rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+			} else {
+				rep = os.Stdout
+			}
+			if f.Items != nil {
+				js, err := json.MarshalIndent(f, "", "  ")
+				if err != nil {
+					log.Print(err)
+				}
+				fmt.Fprintln(rep, string(js))
+			}
 		}
 	}
 }
