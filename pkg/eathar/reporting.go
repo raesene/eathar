@@ -133,10 +133,15 @@ func reportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check strin
 				fmt.Fprintf(rep, "ClusterRoleBinding %s\n", i.Name)
 				fmt.Fprintf(rep, "Subjects:\n")
 				for _, s := range i.Subjects {
-					fmt.Fprintf(rep, "  Kind: %s, Name: %s, Namespace: %s\n", s.Kind, s.Name, s.Namespace)
+					if s.Kind == "ServiceAccount" {
+						fmt.Fprintf(rep, "  Kind: %s, Name: %s, Namespace: %s\n", s.Kind, s.Name, s.Namespace)
+					} else {
+						fmt.Fprintf(rep, "  Kind: %s, Name: %s\n", s.Kind, s.Name)
+					}
 				}
 				fmt.Fprintf(rep, "RoleRef:\n")
 				fmt.Fprintf(rep, "  Kind: %s, Name: %s, APIGroup: %s\n", i.RoleRef.Kind, i.RoleRef.Name, i.RoleRef.APIGroup)
+				fmt.Fprintln(rep, "------------------------")
 			}
 		} else {
 			var rep *os.File
