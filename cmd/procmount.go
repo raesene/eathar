@@ -22,7 +22,7 @@ var procmountCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(procmountCmd)
+	pssCmd.AddCommand(procmountCmd)
 
 	// Here you will define your flags and configuration settings.
 

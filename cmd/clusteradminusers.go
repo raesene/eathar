@@ -21,5 +21,5 @@ var clusteradminusersCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(clusteradminusersCmd)
+	rbacCmd.AddCommand(clusteradminusersCmd)
 }

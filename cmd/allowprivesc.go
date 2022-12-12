@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
+Copyright © 2022 NAME HERE <EMAIL ADDRESS>
 
 */
 package cmd
@@ -23,6 +23,15 @@ var allowprivescCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(allowprivescCmd)
+	pssCmd.AddCommand(allowprivescCmd)
 
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// allowprivescCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// allowprivescCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

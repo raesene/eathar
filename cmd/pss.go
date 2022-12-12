@@ -9,11 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// allCmd represents the all command
-var allPSSCmd = &cobra.Command{
-	Use:   "allPSS",
+// pssCmd represents the pss command
+var pssCmd = &cobra.Command{
+	Use:   "pss",
 	Short: "Runs all the PSS checks",
-	Long:  `This command runs all the available Pod Security checks on the target cluster`,
+	Long: `This command runs all the available Pod Security checks on the target cluster.
+	  You can individual checks by using the subcommands`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
 		eathar.AllowPrivEsc(options)
@@ -34,5 +35,6 @@ var allPSSCmd = &cobra.Command{
 }
 
 func init() {
-	pssCmd.AddCommand(allPSSCmd)
+	rootCmd.AddCommand(pssCmd)
+
 }

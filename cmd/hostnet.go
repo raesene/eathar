@@ -22,5 +22,5 @@ var hostnetCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(hostnetCmd)
+	pssCmd.AddCommand(hostnetCmd)
 }

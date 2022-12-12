@@ -22,6 +22,6 @@ var seccompCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(seccompCmd)
+	pssCmd.AddCommand(seccompCmd)
 
 }

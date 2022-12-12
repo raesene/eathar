@@ -23,7 +23,7 @@ var apparmorCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(apparmorCmd)
+	pssCmd.AddCommand(apparmorCmd)
 
 	// Here you will define your flags and configuration settings.
 
