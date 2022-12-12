@@ -4,7 +4,9 @@ This is a program designed to quickly pull some interesting security related inf
 
 ## PSS
 
-Eathar can check containers running in the cluster for various things that are on the [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) List
+Eathar can check containers running in the cluster for various things that are on the [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) List.
+
+To run all checks just use the top-level `pss` command. To run a specific check use the name of the check below as the subcommand to `pss`. For example to run the hostpid command you would run `eathar pss hostpid`.
 
 - `hostpid` - Provides a list of pods in the cluster configured to use Host PID.
 - `hostnet` - Provides a list of pods in the cluster configured to use Host Networking.
@@ -22,15 +24,17 @@ Eathar can check containers running in the cluster for various things that are o
 - `sysctl` - Look for dangerous sysctls being set
 - `allPSS` - Run all configured checks
 
-## Image List
+## Info Checks
 
-Eathar can also provide a unique list of images used in the cluster, which could be useful for checking versions or feeding into a vulnerability scanner (e.g. trivy)
+Eathar also has some general cluster information checks. You can run all of these using the `info` command, or you can run a specific check using the name of the check below as the subcommand to `info`. For example to run the imagelist command you would run `eathar info imagelist`.
 
 - `imagelist` - Provides a list of images used in the cluster.
 
 ## RBAC
 
 Eather can also provide some information about how RBAC is configured in the cluster, which could be useful for checking if there are any roles or clusterroles that are overly permissive. The goal is to cover the privilege escalation permissions from the Kubernetes [RBAC Good Practice](https://kubernetes.io/docs/concepts/security/rbac-good-practices/#privilege-escalation-risks) document.
+
+You can run all of these using the `rbac` command, or you can run a specific check using the name of the check below as the subcommand to `rbac`. For example to run the clusteradminusers command you would run `eathar rbac clusteradminusers`.
  
  - `clusteradminusers` - Provides a list of users/groups/service accounts who have the cluster-admin clusterrole.
  - `getsecretsuser` - Provides a list of users/groups/service accounts who have `GET` or `LIST` access to secrets at the cluster level.

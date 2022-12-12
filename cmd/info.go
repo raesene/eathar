@@ -5,8 +5,7 @@ Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/raesene/eathar/pkg/eathar"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +16,8 @@ var infoCmd = &cobra.Command{
 	Long: `This command returns "interesting" information about a cluster.
 		You can run indivdual checks using subcommands.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("info called")
+		options := cmd.Flags()
+		eathar.ImageList(options)
 	},
 }
 
