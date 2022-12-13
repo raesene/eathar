@@ -23,6 +23,6 @@ var privilegedCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(privilegedCmd)
+	pssCmd.AddCommand(privilegedCmd)
 
 }

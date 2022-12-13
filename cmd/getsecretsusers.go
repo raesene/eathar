@@ -22,5 +22,5 @@ var getsecretsusersCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(getsecretsusersCmd)
+	rbacCmd.AddCommand(getsecretsusersCmd)
 }

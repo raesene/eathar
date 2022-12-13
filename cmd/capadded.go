@@ -23,6 +23,6 @@ var capaddedCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(capaddedCmd)
+	pssCmd.AddCommand(capaddedCmd)
 
 }

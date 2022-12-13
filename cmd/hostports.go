@@ -22,7 +22,7 @@ var hostportsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(hostportsCmd)
+	pssCmd.AddCommand(hostportsCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -22,5 +22,5 @@ var sysctlCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(sysctlCmd)
+	pssCmd.AddCommand(sysctlCmd)
 }

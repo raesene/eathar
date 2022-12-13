@@ -27,6 +27,6 @@ var hostpidCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(hostpidCmd)
+	pssCmd.AddCommand(hostpidCmd)
 
 }

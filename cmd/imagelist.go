@@ -21,5 +21,5 @@ var imagelistCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(imagelistCmd)
+	infoCmd.AddCommand(imagelistCmd)
 }

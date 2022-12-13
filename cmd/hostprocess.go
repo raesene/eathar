@@ -23,7 +23,7 @@ var hostprocessCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(hostprocessCmd)
+	pssCmd.AddCommand(hostprocessCmd)
 
 	// Here you will define your flags and configuration settings.
 

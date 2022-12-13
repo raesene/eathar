@@ -22,6 +22,6 @@ var hostipcCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(hostipcCmd)
+	pssCmd.AddCommand(hostipcCmd)
 
 }
