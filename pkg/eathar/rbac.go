@@ -139,6 +139,7 @@ func EscalateUsers(options *pflag.FlagSet) {
 	if err != nil {
 		log.Print(err)
 	}
+	//TODO: This isn't quite right as it will also pick up users with access to the escalate verb on other resources
 	for _, clusterRole := range clusterRoles.Items {
 		for _, policy := range clusterRole.Rules {
 			for _, verb := range policy.Verbs {
@@ -162,4 +163,78 @@ func EscalateUsers(options *pflag.FlagSet) {
 		}
 	}
 	reportRBAC(escalateUsersList, options, "Users with access to escalate")
+}
+
+//Function to list users with access to the impersonate verb
+func ImpersonateUsers(options *pflag.FlagSet) {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+
+	var impersonateClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, verb := range policy.Verbs {
+				if verb == "impersonate" {
+					impersonateClusterRoles.Items = append(impersonateClusterRoles.Items, clusterRole)
+				}
+			}
+		}
+	}
+	var impersonateUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range impersonateClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				impersonateUsersList.Items = append(impersonateUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	reportRBAC(impersonateUsersList, options, "Users with access to impersonate")
+}
+
+//Function to list users with access to the bind verb
+func BindUsers(options *pflag.FlagSet) {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+
+	var bindClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, verb := range policy.Verbs {
+				if verb == "bind" {
+					bindClusterRoles.Items = append(bindClusterRoles.Items, clusterRole)
+				}
+			}
+		}
+	}
+	var bindUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range bindClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				bindUsersList.Items = append(bindUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	reportRBAC(bindUsersList, options, "Users with access to bind")
 }
