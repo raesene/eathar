@@ -6,27 +6,35 @@ This is a program designed to quickly pull some interesting security related inf
 
 Eathar can check containers running in the cluster for various things that are on the [Pod Security Standards](https://kubernetes.io/docs/concepts/security/pod-security-standards/) List
 
-- hostpid - Provides a list of pods in the cluster configured to use Host PID.
-- hostnet - Provides a list of pods in the cluster configured to use Host Networking.
-- hostipc - Provides a list of pods in the cluster configured to use Host IPC.
-- hostports - Provides a list of containers in the cluster configured to use Host Ports.
-- hostpath - Provides a list of pods that mount host path volumes.
-- hostprocess - Provides a list of Windows pods and containers that run with hostprocess rights.
-- privileged - Provides a list of containers in the cluster configured to be privileged.
-- allowprivesc - Provides a list of containers in the cluster configured to allow privilege escalation.
-- capadded - Provides a list of containers which have capabilities added over the default set.
-- cadropped - Provides a list of containers which have capabilities dropped from the default set.
-- seccomp - Look for containers which have no seccomp profile specified or explicitly set unconfined.
-- apparmor - Look for containers where the apparmor profile is explicitly set to unconfined.
-- procmount - Look for containers with an unmasked proc filesystem mount.
-- sysctl - Look for dangerous sysctls being set
-- allPSS - Run all configured checks
+- `hostpid` - Provides a list of pods in the cluster configured to use Host PID.
+- `hostnet` - Provides a list of pods in the cluster configured to use Host Networking.
+- `hostipc` - Provides a list of pods in the cluster configured to use Host IPC.
+- `hostports` - Provides a list of containers in the cluster configured to use Host Ports.
+- `hostpath` - Provides a list of pods that mount host path volumes.
+- `hostprocess` - Provides a list of Windows pods and containers that run with hostprocess rights.
+- `privileged` - Provides a list of containers in the cluster configured to be privileged.
+- `allowprivesc` - Provides a list of containers in the cluster configured to allow privilege escalation.
+- `capadded` - Provides a list of containers which have capabilities added over the default set.
+- `cadropped` - Provides a list of containers which have capabilities dropped from the default set.
+- `seccomp` - Look for containers which have no seccomp profile specified or explicitly set unconfined.
+- `apparmor` - Look for containers where the apparmor profile is explicitly set to unconfined.
+- `procmount` - Look for containers with an unmasked proc filesystem mount.
+- `sysctl` - Look for dangerous sysctls being set
+- `allPSS` - Run all configured checks
 
 ## Image List
 
 Eathar can also provide a unique list of images used in the cluster, which could be useful for checking versions or feeding into a vulnerability scanner (e.g. trivy)
 
-- imagelist - Provides a list of images used in the cluster.
+- `imagelist` - Provides a list of images used in the cluster.
+
+## RBAC
+
+Eather can also provide some information about how RBAC is configured in the cluster, which could be useful for checking if there are any roles or clusterroles that are overly permissive. The goal is to cover the privilege escalation permissions from the Kubernetes [RBAC Good Practice](https://kubernetes.io/docs/concepts/security/rbac-good-practices/#privilege-escalation-risks) document.
+ 
+ - `clusteradminusers` - Provides a list of users/groups/service accounts who have the cluster-admin clusterrole.
+ - `getsecretsuser` - Provides a list of users/groups/service accounts who have `GET` or `LIST` access to secrets at the cluster level.
+ - `persistentvolumecreationuser` - Provides a list of users/groups/service accounts who have `CREATE` access to persistentvolumes at the cluster level.
 
 ## Demo
 
