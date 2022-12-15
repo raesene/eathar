@@ -19,6 +19,10 @@ var rbacCmd = &cobra.Command{
 		options := cmd.Flags()
 		eathar.GetClusterAdminUsers(options)
 		eathar.GetSecretsUsers(options)
+		eathar.CreatePVUsers(options)
+		eathar.ImpersonateUsers(options)
+		eathar.EscalateUsers(options)
+		eathar.BindUsers(options)
 	},
 }
 

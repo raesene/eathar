@@ -38,7 +38,11 @@ You can run all of these using the `rbac` command, or you can run a specific che
  
  - `clusteradminusers` - Provides a list of users/groups/service accounts who have the cluster-admin clusterrole.
  - `getsecretsuser` - Provides a list of users/groups/service accounts who have `GET` or `LIST` access to secrets at the cluster level.
- - `persistentvolumecreationuser` - Provides a list of users/groups/service accounts who have `CREATE` access to persistentvolumes at the cluster level.
+ - `persistentvolumecreationuser` - Provides a list of users/groups/service accounts who have `CREATE` access to persistentvolumes at the cluster level. 
+ - `impersonateuser` - Provides a list of users/groups/service accounts who have `impersonate` access to other users/groups/service accounts at the cluster level.
+ - `binduser` - Provides a list of users/groups/service accounts who have `bind` access to clusterroles at the cluster level.
+ - `escalate` - Provides a list of users/groups/service accounts who have `escalate` access to clusterroles at the cluster level.
+
 
 ## Demo
 
