@@ -42,6 +42,8 @@ You can run all of these using the `rbac` command, or you can run a specific che
  - `impersonateuser` - Provides a list of users/groups/service accounts who have `impersonate` access to other users/groups/service accounts at the cluster level.
  - `binduser` - Provides a list of users/groups/service accounts who have `bind` access to clusterroles at the cluster level.
  - `escalate` - Provides a list of users/groups/service accounts who have `escalate` access to clusterroles at the cluster level.
+ - `validatingwebhookuser` - Provides a list of users/groups/service accounts who have `create`,  `update`, `patch`, or `delete` access to validatingwebhookconfigurations at the cluster level.
+ - `mutatingwebhookuser` - Provides a list of users/groups/service accounts who have `create`,  `update`, `patch`, or `delete` access to mutatingwebhookconfigurations at the cluster level.
 
 
 ## Demo
