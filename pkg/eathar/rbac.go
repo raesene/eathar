@@ -238,3 +238,88 @@ func BindUsers(options *pflag.FlagSet) {
 	}
 	reportRBAC(bindUsersList, options, "Users with access to bind")
 }
+
+//Function to list users who can create or modify validatingadmissionwebhookconfigurations
+func ValidatingWebhookUsers(options *pflag.FlagSet) {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+
+	var validatingWebhookClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, resource := range policy.Resources {
+				if resource == "validatingadmissionwebhookconfigurations" {
+					for _, verb := range policy.Verbs {
+						if verb == "create" || verb == "update" || verb == "patch" || verb == "delete" || verb == "*" {
+							validatingWebhookClusterRoles.Items = append(validatingWebhookClusterRoles.Items, clusterRole)
+							//We don't want to have this in multiple times if it lists multiple verbs
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	var validatingWebhookUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range validatingWebhookClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				validatingWebhookUsersList.Items = append(validatingWebhookUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	reportRBAC(validatingWebhookUsersList, options, "Users with access to create or modify validatingadmissionwebhookconfigurations")
+}
+
+//Function to list users who can create or modify mutatingadmissionwebhookconfigurations
+func MutatingWebhookUsers(options *pflag.FlagSet) {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+	var mutatingWebhookClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, resource := range policy.Resources {
+				if resource == "mutatingadmissionwebhookconfigurations" {
+					for _, verb := range policy.Verbs {
+						if verb == "create" || verb == "update" || verb == "patch" || verb == "delete" || verb == "*" {
+							mutatingWebhookClusterRoles.Items = append(mutatingWebhookClusterRoles.Items, clusterRole)
+							//We don't want to have this in multiple times if it lists multiple verbs
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	var mutatingWebhookUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range mutatingWebhookClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				mutatingWebhookUsersList.Items = append(mutatingWebhookUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	reportRBAC(mutatingWebhookUsersList, options, "Users with access to create or modify mutatingadmissionwebhookconfigurations")
+}

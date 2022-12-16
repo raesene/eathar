@@ -23,6 +23,8 @@ var rbacCmd = &cobra.Command{
 		eathar.ImpersonateUsers(options)
 		eathar.EscalateUsers(options)
 		eathar.BindUsers(options)
+		eathar.ValidatingWebhookUsers(options)
+		eathar.MutatingWebhookUsers(options)
 	},
 }
 
