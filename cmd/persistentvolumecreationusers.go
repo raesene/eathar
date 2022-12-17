@@ -10,8 +10,8 @@ import (
 )
 
 // persistentvolumecreationuserCmd represents the persistentvolumecreationuser command
-var persistentvolumecreationuserCmd = &cobra.Command{
-	Use:   "persistentvolumecreationuser",
+var persistentvolumecreationusersCmd = &cobra.Command{
+	Use:   "persistentvolumecreationusers",
 	Short: "Lists users/groups/service accounts with access to create persistent volumes",
 	Long:  `This command lists users/groups/service accounts with access to create persistent volumes`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -22,6 +22,6 @@ var persistentvolumecreationuserCmd = &cobra.Command{
 }
 
 func init() {
-	rbacCmd.AddCommand(persistentvolumecreationuserCmd)
+	rbacCmd.AddCommand(persistentvolumecreationusersCmd)
 
 }
