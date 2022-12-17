@@ -3,7 +3,7 @@ package eathar
 import "github.com/spf13/pflag"
 
 //Creates a list of images in use in the cluster
-func ImageList(options *pflag.FlagSet) {
+func ImageList(options *pflag.FlagSet) []string {
 	imageList := make(map[string]bool)
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -18,5 +18,6 @@ func ImageList(options *pflag.FlagSet) {
 		imageListSlice = append(imageListSlice, key)
 	}
 
-	reportImage(imageListSlice, options, "Image List")
+	return imageListSlice
+	//reportImage(imageListSlice, options, "Image List")
 }

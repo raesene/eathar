@@ -77,7 +77,7 @@ func reportPSS(f []Finding, options *pflag.FlagSet, check string) {
 
 }
 
-func reportImage(f []string, options *pflag.FlagSet, check string) {
+func ReportImage(f []string, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 

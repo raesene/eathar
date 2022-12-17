@@ -16,7 +16,8 @@ var imagelistCmd = &cobra.Command{
 	Long:  `This will provide a list of images used in the cluster`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.ImageList(options)
+		imageListSlice := eathar.ImageList(options)
+		eathar.ReportImage(imageListSlice, options, "Image List")
 	},
 }
 
