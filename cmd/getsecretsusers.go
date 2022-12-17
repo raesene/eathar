@@ -17,7 +17,8 @@ var getsecretsusersCmd = &cobra.Command{
 	either via the get verb or via the list verb (both of which allow you to read the contents of the secret).`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.GetSecretsUsers(options)
+		getSecretsUsersList := eathar.GetSecretsUsers(options)
+		eathar.ReportRBAC(getSecretsUsersList, options, "Users with access to secrets")
 	},
 }
 

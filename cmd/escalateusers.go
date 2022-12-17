@@ -16,7 +16,8 @@ var escalateusersCmd = &cobra.Command{
 	Long:  `Lists users/groups/service accounts with access to the escalate verb`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.EscalateUsers(options)
+		escalateUsersList := eathar.EscalateUsers(options)
+		eathar.ReportRBAC(escalateUsersList, options, "Users with access to escalate")
 	},
 }
 

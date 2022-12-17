@@ -16,7 +16,7 @@ import (
 	v1 "k8s.io/api/rbac/v1"
 )
 
-func reportPSS(f []Finding, options *pflag.FlagSet, check string) {
+func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 
@@ -77,7 +77,7 @@ func reportPSS(f []Finding, options *pflag.FlagSet, check string) {
 
 }
 
-func reportImage(f []string, options *pflag.FlagSet, check string) {
+func ReportImage(f []string, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 
@@ -115,7 +115,7 @@ func reportImage(f []string, options *pflag.FlagSet, check string) {
 	}
 }
 
-func reportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check string) {
+func ReportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 

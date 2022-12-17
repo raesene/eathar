@@ -17,14 +17,22 @@ var rbacCmd = &cobra.Command{
 	you can run each check individually if you wish, using the subcommands`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.GetClusterAdminUsers(options)
-		eathar.GetSecretsUsers(options)
-		eathar.CreatePVUsers(options)
-		eathar.ImpersonateUsers(options)
-		eathar.EscalateUsers(options)
-		eathar.BindUsers(options)
-		eathar.ValidatingWebhookUsers(options)
-		eathar.MutatingWebhookUsers(options)
+		clusterAdminRoleBindingList := eathar.GetClusterAdminUsers(options)
+		eathar.ReportRBAC(clusterAdminRoleBindingList, options, "Cluster Admin Users")
+		getSecretsUsersList := eathar.GetSecretsUsers(options)
+		eathar.ReportRBAC(getSecretsUsersList, options, "Users with access to secrets")
+		createPVUsersList := eathar.CreatePVUsers(options)
+		eathar.ReportRBAC(createPVUsersList, options, "Users with access to create persistent volumes")
+		impersonateUsersList := eathar.ImpersonateUsers(options)
+		eathar.ReportRBAC(impersonateUsersList, options, "Users with access to impersonate")
+		escalateUsersList := eathar.EscalateUsers(options)
+		eathar.ReportRBAC(escalateUsersList, options, "Users with access to escalate")
+		bindUsersList := eathar.BindUsers(options)
+		eathar.ReportRBAC(bindUsersList, options, "Users with access to bind")
+		validatingWebhookUsersList := eathar.ValidatingWebhookUsers(options)
+		eathar.ReportRBAC(validatingWebhookUsersList, options, "Users with access to create or modify validatingadmissionwebhookconfigurations")
+		mutatingWebhookUsersList := eathar.MutatingWebhookUsers(options)
+		eathar.ReportRBAC(mutatingWebhookUsersList, options, "Users with access to create or modify mutatingadmissionwebhookconfigurations")
 	},
 }
 

@@ -25,7 +25,7 @@ type Finding struct {
 	Image        string   `json:",omitempty"`
 }
 
-func Hostnet(options *pflag.FlagSet) {
+func Hostnet(options *pflag.FlagSet) []Finding {
 	var hostnetcont []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -35,10 +35,10 @@ func Hostnet(options *pflag.FlagSet) {
 			hostnetcont = append(hostnetcont, p)
 		}
 	}
-	reportPSS(hostnetcont, options, "Host Network")
+	return hostnetcont
 }
 
-func Hostpid(options *pflag.FlagSet) {
+func Hostpid(options *pflag.FlagSet) []Finding {
 	var hostpidcont []Finding
 	pods := connectWithPods()
 
@@ -49,10 +49,11 @@ func Hostpid(options *pflag.FlagSet) {
 			hostpidcont = append(hostpidcont, p)
 		}
 	}
-	reportPSS(hostpidcont, options, "Host PID")
+	return hostpidcont
+
 }
 
-func Hostipc(options *pflag.FlagSet) {
+func Hostipc(options *pflag.FlagSet) []Finding {
 	var hostipccont []Finding
 	pods := connectWithPods()
 
@@ -63,10 +64,10 @@ func Hostipc(options *pflag.FlagSet) {
 			hostipccont = append(hostipccont, p)
 		}
 	}
-	reportPSS(hostipccont, options, "Host IPC")
+	return hostipccont
 }
 
-func HostProcess(options *pflag.FlagSet) {
+func HostProcess(options *pflag.FlagSet) []Finding {
 	var hostprocesscont []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -97,10 +98,11 @@ func HostProcess(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(hostprocesscont, options, "Host Process")
+	return hostprocesscont
+
 }
 
-func AllowPrivEsc(options *pflag.FlagSet) {
+func AllowPrivEsc(options *pflag.FlagSet) []Finding {
 	var allowprivesccont []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -128,11 +130,11 @@ func AllowPrivEsc(options *pflag.FlagSet) {
 			}
 		}
 	}
+	return allowprivesccont
 
-	reportPSS(allowprivesccont, options, "Allow Privilege Escalation")
 }
 
-func Privileged(options *pflag.FlagSet) {
+func Privileged(options *pflag.FlagSet) []Finding {
 	var privcont []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -158,10 +160,11 @@ func Privileged(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(privcont, options, "Privileged Container")
+	return privcont
+
 }
 
-func AddedCapabilities(options *pflag.FlagSet) {
+func AddedCapabilities(options *pflag.FlagSet) []Finding {
 	var capadded []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -202,10 +205,11 @@ func AddedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(capadded, options, "Added Capabilities")
+	return capadded
+
 }
 
-func DroppedCapabilities(options *pflag.FlagSet) {
+func DroppedCapabilities(options *pflag.FlagSet) []Finding {
 	var capdropped []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -245,10 +249,11 @@ func DroppedCapabilities(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(capdropped, options, "Dropped Capabilities")
+	return capdropped
+
 }
 
-func HostPorts(options *pflag.FlagSet) {
+func HostPorts(options *pflag.FlagSet) []Finding {
 	var hostports []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -288,10 +293,11 @@ func HostPorts(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(hostports, options, "Host Ports")
+	return hostports
+
 }
 
-func Seccomp(options *pflag.FlagSet) {
+func Seccomp(options *pflag.FlagSet) []Finding {
 	var seccomp []Finding
 	pods := connectWithPods()
 	// The logic here is that if the pod is unconfined & the container is unconfined, it's unconfined.
@@ -323,10 +329,11 @@ func Seccomp(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(seccomp, options, "Seccomp Disabled")
+	return seccomp
+
 }
 
-func HostPath(options *pflag.FlagSet) {
+func HostPath(options *pflag.FlagSet) []Finding {
 	var hostpath []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -340,10 +347,11 @@ func HostPath(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(hostpath, options, "Host Path")
+	return hostpath
+
 }
 
-func Apparmor(options *pflag.FlagSet) {
+func Apparmor(options *pflag.FlagSet) []Finding {
 	var apparmor []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -357,10 +365,11 @@ func Apparmor(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(apparmor, options, "Apparmor Disabled")
+	return apparmor
+
 }
 
-func Procmount(options *pflag.FlagSet) {
+func Procmount(options *pflag.FlagSet) []Finding {
 	var unmaskedproc []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -386,10 +395,11 @@ func Procmount(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(unmaskedproc, options, "Unmasked Procmount")
+	return unmaskedproc
+
 }
 
-func Sysctl(options *pflag.FlagSet) {
+func Sysctl(options *pflag.FlagSet) []Finding {
 	var sysctls []Finding
 	pods := connectWithPods()
 	for _, pod := range pods.Items {
@@ -410,5 +420,6 @@ func Sysctl(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportPSS(sysctls, options, "Unsafe Sysctl")
+	return sysctls
+
 }

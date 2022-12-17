@@ -17,7 +17,8 @@ var hostipcCmd = &cobra.Command{
 	IPC namespace`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Hostipc(options)
+		hostipccont := eathar.Hostipc(options)
+		eathar.ReportPSS(hostipccont, options, "Host IPC")
 	},
 }
 

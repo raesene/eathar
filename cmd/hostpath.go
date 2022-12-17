@@ -17,7 +17,8 @@ var hostpathCmd = &cobra.Command{
 	risk as it allows the container to access the host filesystem`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.HostPath(options)
+		hostpath := eathar.HostPath(options)
+		eathar.ReportPSS(hostpath, options, "Host Path")
 	},
 }
 

@@ -18,7 +18,8 @@ var capdroppedCmd = &cobra.Command{
 	least privilege`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.DroppedCapabilities(options)
+		capdropped := eathar.DroppedCapabilities(options)
+		eathar.ReportPSS(capdropped, options, "Dropped Capabilities")
 	},
 }
 

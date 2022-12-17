@@ -18,7 +18,8 @@ var privilegedCmd = &cobra.Command{
 	so should be used only where expicitly required.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Privileged(options)
+		privcont := eathar.Privileged(options)
+		eathar.ReportPSS(privcont, options, "Privileged Container")
 	},
 }
 

@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func GetClusterAdminUsers(options *pflag.FlagSet) {
+func GetClusterAdminUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -33,10 +33,11 @@ func GetClusterAdminUsers(options *pflag.FlagSet) {
 			clusterAdminRoleBindingList.Items = append(clusterAdminRoleBindingList.Items, clusterRoleBinding)
 		}
 	}
-	reportRBAC(clusterAdminRoleBindingList, options, "Cluster Admin Users")
+	return clusterAdminRoleBindingList
+
 }
 
-func GetSecretsUsers(options *pflag.FlagSet) {
+func GetSecretsUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -82,10 +83,11 @@ func GetSecretsUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(getSecretsUsersList, options, "Users with access to secrets")
+	return getSecretsUsersList
+
 }
 
-func CreatePVUsers(options *pflag.FlagSet) {
+func CreatePVUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -124,11 +126,12 @@ func CreatePVUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(createPVUsersList, options, "Users with access to create persistent volumes")
+	return createPVUsersList
+
 }
 
 //Function to get a list of users with access to the escalate verb
-func EscalateUsers(options *pflag.FlagSet) {
+func EscalateUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -162,11 +165,12 @@ func EscalateUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(escalateUsersList, options, "Users with access to escalate")
+	return escalateUsersList
+
 }
 
 //Function to list users with access to the impersonate verb
-func ImpersonateUsers(options *pflag.FlagSet) {
+func ImpersonateUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -199,11 +203,12 @@ func ImpersonateUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(impersonateUsersList, options, "Users with access to impersonate")
+	return impersonateUsersList
+
 }
 
 //Function to list users with access to the bind verb
-func BindUsers(options *pflag.FlagSet) {
+func BindUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -236,11 +241,12 @@ func BindUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(bindUsersList, options, "Users with access to bind")
+	return bindUsersList
+
 }
 
 //Function to list users who can create or modify validatingadmissionwebhookconfigurations
-func ValidatingWebhookUsers(options *pflag.FlagSet) {
+func ValidatingWebhookUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -279,11 +285,11 @@ func ValidatingWebhookUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(validatingWebhookUsersList, options, "Users with access to create or modify validatingadmissionwebhookconfigurations")
+	return validatingWebhookUsersList
 }
 
 //Function to list users who can create or modify mutatingadmissionwebhookconfigurations
-func MutatingWebhookUsers(options *pflag.FlagSet) {
+func MutatingWebhookUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -321,5 +327,6 @@ func MutatingWebhookUsers(options *pflag.FlagSet) {
 			}
 		}
 	}
-	reportRBAC(mutatingWebhookUsersList, options, "Users with access to create or modify mutatingadmissionwebhookconfigurations")
+	return mutatingWebhookUsersList
+
 }
