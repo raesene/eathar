@@ -61,6 +61,10 @@ By Default reporting is to STDOUT in text format. There's a couple of options fo
 `-j` will output to JSON
 `-f <FILENAME>` sends output to a file (`.txt` or `.json` gets appended to the name specified)
 
+## Architecture
+
+The `architecture.md` file in the `docs` directory has some notes on structure and design decisions.
+
 ## Name
 
 An Eathar is a small boat in Scots Gaelic.
