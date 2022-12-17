@@ -16,7 +16,8 @@ var validatingwebhookuserCmd = &cobra.Command{
 	Long:  `List the users that have access to modify validating webhooks`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.ValidatingWebhookUsers(options)
+		validatingWebhookUsersList := eathar.ValidatingWebhookUsers(options)
+		eathar.ReportRBAC(validatingWebhookUsersList, options, "Users with access to create or modify validatingadmissionwebhookconfigurations")
 	},
 }
 

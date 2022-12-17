@@ -17,7 +17,8 @@ var infoCmd = &cobra.Command{
 		You can run indivdual checks using subcommands.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.ImageList(options)
+		imageListSlice := eathar.ImageList(options)
+		eathar.ReportImage(imageListSlice, options, "Image List")
 	},
 }
 

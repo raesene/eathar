@@ -16,7 +16,8 @@ var mutatingwebhookuserCmd = &cobra.Command{
 	Long:  `List the users that have access to modify mutating webhooks`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.MutatingWebhookUsers(options)
+		mutatingWebhookUsersList := eathar.MutatingWebhookUsers(options)
+		eathar.ReportRBAC(mutatingWebhookUsersList, options, "Users with access to create or modify mutatingadmissionwebhookconfigurations")
 	},
 }
 

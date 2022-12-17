@@ -16,7 +16,8 @@ var impersonateusersCmd = &cobra.Command{
 	Long:  `Lists users/groups/service accounts with access to the impersonate verb`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.ImpersonateUsers(options)
+		impersonateUsersList := eathar.ImpersonateUsers(options)
+		eathar.ReportRBAC(impersonateUsersList, options, "Users with access to impersonate")
 	},
 }
 

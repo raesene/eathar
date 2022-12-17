@@ -16,7 +16,8 @@ var persistentvolumecreationuserCmd = &cobra.Command{
 	Long:  `This command lists users/groups/service accounts with access to create persistent volumes`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.CreatePVUsers(options)
+		createPVUsersList := eathar.CreatePVUsers(options)
+		eathar.ReportRBAC(createPVUsersList, options, "Users with access to create persistent volumes")
 	},
 }
 

@@ -16,7 +16,8 @@ var clusteradminusersCmd = &cobra.Command{
 	Long:  `This provides a list of users/groups/service accounts with cluster-admin role`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.GetClusterAdminUsers(options)
+		clusterAdminRoleBindingList := eathar.GetClusterAdminUsers(options)
+		eathar.ReportRBAC(clusterAdminRoleBindingList, options, "Cluster Admin Users")
 	},
 }
 

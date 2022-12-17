@@ -16,7 +16,8 @@ var bindusersCmd = &cobra.Command{
 	Long:  `Lists users/groups/service accounts with access to the bind verb`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.BindUsers(options)
+		bindUsersList := eathar.BindUsers(options)
+		eathar.ReportRBAC(bindUsersList, options, "Users with access to bind")
 	},
 }
 
