@@ -18,7 +18,8 @@ var allowprivescCmd = &cobra.Command{
 	for things like sudo to be used in a container to escalate privileges`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.AllowPrivEsc(options)
+		allowprivesccont := eathar.AllowPrivEsc(options)
+		eathar.ReportPSS(allowprivesccont, options, "Allow Privilege Escalation")
 	},
 }
 

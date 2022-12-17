@@ -17,7 +17,8 @@ var seccompCmd = &cobra.Command{
 	Kubernete disables CRI seccomp profiles (e.g. Docker)`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Seccomp(options)
+		seccomp := eathar.Seccomp(options)
+		eathar.ReportPSS(seccomp, options, "Seccomp Disabled")
 	},
 }
 

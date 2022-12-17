@@ -17,7 +17,8 @@ var procmountCmd = &cobra.Command{
 	access to the proc filesystem on the host which can contain sensitive information`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Procmount(options)
+		unmaskedproc := eathar.Procmount(options)
+		eathar.ReportPSS(unmaskedproc, options, "Unmasked Procmount")
 	},
 }
 

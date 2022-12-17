@@ -35,9 +35,11 @@ Creating a new check would go through the following rough process
   - `pss` - Pod Security Standards
   - `info` - General information checks
   - `rbac` - RBAC checks
-2. in the cmd file (`cmd/capdropped.go) add short and long documentation for the command, and in the `run` function add the code to run the check. for example:
+2. in the cmd file (`cmd/capdropped.go`) add short and long documentation for the command, and in the `run` function add the code to run the check. for example:
 ```go
-		options := cmd.Flags()
-		eathar.DroppedCapabilities(options)
+		capdropped := eathar.DroppedCapabilities(options)
+		eathar.ReportPSS(capdropped, options, "Dropped Capabilities")
 ```
 3. Create a function in the `eathar` package to run the check. The function should be placed in the file that corresponds to the top-level command.
+
+4. Add the commands from the `cmd` file to whichever top-level command it belongs to (e.g. `cmd/pss.go` for the above). The top level commands should run all their sub-commands. We can't automate this process with cobra at the moment as auto-execution is only supported from `root` (per [this issue](https://github.com/spf13/cobra/issues/1526))

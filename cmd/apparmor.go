@@ -18,7 +18,8 @@ var apparmorCmd = &cobra.Command{
 	applied to all containers`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Apparmor(options)
+		apparmor := eathar.Apparmor(options)
+		eathar.ReportPSS(apparmor, options, "Apparmor Disabled")
 	},
 }
 

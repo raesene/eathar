@@ -18,7 +18,8 @@ var capaddedCmd = &cobra.Command{
 	containers with added capabilities`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.AddedCapabilities(options)
+		capadded := eathar.AddedCapabilities(options)
+		eathar.ReportPSS(capadded, options, "Added Capabilities")
 	},
 }
 

@@ -17,7 +17,8 @@ var hostportsCmd = &cobra.Command{
 	risk as hostPorts cannot be controlled by the network policy engine`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.HostPorts(options)
+		hostports := eathar.HostPorts(options)
+		eathar.ReportPSS(hostports, options, "Host Ports")
 	},
 }
 

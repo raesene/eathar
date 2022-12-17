@@ -18,7 +18,8 @@ var hostprocessCmd = &cobra.Command{
 	of privileged containers`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.HostProcess(options)
+		hostprocesscont := eathar.HostProcess(options)
+		eathar.ReportPSS(hostprocesscont, options, "Host Process")
 	},
 }
 

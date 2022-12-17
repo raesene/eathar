@@ -17,7 +17,8 @@ var hostnetCmd = &cobra.Command{
 	which have host networking enabled.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Hostnet(options)
+		hostnetcont := eathar.Hostnet(options)
+		eathar.ReportPSS(hostnetcont, options, "Host Network")
 	},
 }
 

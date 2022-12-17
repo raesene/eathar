@@ -17,7 +17,8 @@ var sysctlCmd = &cobra.Command{
 	'safe' list`,
 	Run: func(cmd *cobra.Command, args []string) {
 		options := cmd.Flags()
-		eathar.Sysctl(options)
+		sysctls := eathar.Sysctl(options)
+		eathar.ReportPSS(sysctls, options, "Unsafe Sysctl")
 	},
 }
 
