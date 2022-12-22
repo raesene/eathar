@@ -33,6 +33,10 @@ var rbacCmd = &cobra.Command{
 		eathar.ReportRBAC(validatingWebhookUsersList, options, "Users with access to create or modify validatingadmissionwebhookconfigurations")
 		mutatingWebhookUsersList := eathar.MutatingWebhookUsers(options)
 		eathar.ReportRBAC(mutatingWebhookUsersList, options, "Users with access to create or modify mutatingadmissionwebhookconfigurations")
+		wildcardUsersList := eathar.WildcardAccess(options)
+		eathar.ReportRBAC(wildcardUsersList, options, "Users with wildcard access to all resources")
+		satokenUsersList := eathar.CreateServiceAccountTokens(options)
+		eathar.ReportRBAC(satokenUsersList, options, "Users with create access to service account tokens")
 	},
 }
 
