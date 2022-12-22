@@ -43,12 +43,6 @@ func GetSecretsUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 		log.Print(err)
 	}
 
-	//var GetSecretsUsersList v1.ClusterRoleBindingList
-	// Get all the ClusterRoleBindings
-	//clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
-	//if err != nil {
-	//	log.Print(err)
-	//}
 	var getSecretsClusterRoles v1.ClusterRoleList
 	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -349,8 +343,6 @@ func WildcardAccess(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 					for _, verb := range policy.Verbs {
 						if verb == "*" {
 							wildcardClusterRoles.Items = append(wildcardClusterRoles.Items, clusterRole)
-							//We don't want to have this in multiple times if it lists multiple verbs
-							break
 						}
 					}
 				}
@@ -371,4 +363,86 @@ func WildcardAccess(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 		}
 	}
 	return wildcardUsersList
+}
+
+//This function finds all clusterroles that allow for create rights to the token sub-resource of serviceaccounts and the clusterrolebindings that are associated with them
+func CreateServiceAccountTokens(options *pflag.FlagSet) v1.ClusterRoleBindingList {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+	var createServiceAccountTokensClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, resource := range policy.Resources {
+				if resource == "serviceaccounts/token" {
+					for _, verb := range policy.Verbs {
+						if verb == "create" {
+							createServiceAccountTokensClusterRoles.Items = append(createServiceAccountTokensClusterRoles.Items, clusterRole)
+						}
+					}
+				}
+			}
+		}
+	}
+	var createServiceAccountTokensUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range createServiceAccountTokensClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				createServiceAccountTokensUsersList.Items = append(createServiceAccountTokensUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	return createServiceAccountTokensUsersList
+}
+
+//This function finds all clusterroles that can update the approval sub-resource of certificatesigningrequests and the clusterrolebindings that are associated with them
+func UpdateCSRApproval(options *pflag.FlagSet) v1.ClusterRoleBindingList {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+	var updateCSRApprovalClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, resource := range policy.Resources {
+				if resource == "certificatesigningrequests/approval" {
+					for _, verb := range policy.Verbs {
+						if verb == "update" || verb == "*" {
+							updateCSRApprovalClusterRoles.Items = append(updateCSRApprovalClusterRoles.Items, clusterRole)
+							//We don't want to have this in multiple times if it lists multiple verbs
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	var updateCSRApprovalUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range updateCSRApprovalClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				updateCSRApprovalUsersList.Items = append(updateCSRApprovalUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	return updateCSRApprovalUsersList
 }
