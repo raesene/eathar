@@ -330,3 +330,45 @@ func MutatingWebhookUsers(options *pflag.FlagSet) v1.ClusterRoleBindingList {
 	return mutatingWebhookUsersList
 
 }
+
+//This Function finds all clusterroles that allow wildcard access to all resources and the clusterrolebindings that are associated with them
+func WildcardAccess(options *pflag.FlagSet) v1.ClusterRoleBindingList {
+	clientset, err := initKubeClient()
+	if err != nil {
+		log.Print(err)
+	}
+	var wildcardClusterRoles v1.ClusterRoleList
+	clusterRoles, err := clientset.RbacV1().ClusterRoles().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRole := range clusterRoles.Items {
+		for _, policy := range clusterRole.Rules {
+			for _, resource := range policy.Resources {
+				if resource == "*" {
+					for _, verb := range policy.Verbs {
+						if verb == "*" {
+							wildcardClusterRoles.Items = append(wildcardClusterRoles.Items, clusterRole)
+							//We don't want to have this in multiple times if it lists multiple verbs
+							break
+						}
+					}
+				}
+			}
+		}
+	}
+	var wildcardUsersList v1.ClusterRoleBindingList
+	//Get all the ClusterRoleBindings
+	clusterRoleBindings, err := clientset.RbacV1().ClusterRoleBindings().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		log.Print(err)
+	}
+	for _, clusterRoleBinding := range clusterRoleBindings.Items {
+		for _, clusterRole := range wildcardClusterRoles.Items {
+			if clusterRoleBinding.RoleRef.Name == clusterRole.Name {
+				wildcardUsersList.Items = append(wildcardUsersList.Items, clusterRoleBinding)
+			}
+		}
+	}
+	return wildcardUsersList
+}
