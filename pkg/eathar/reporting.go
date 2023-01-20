@@ -19,8 +19,22 @@ import (
 func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
-
-	if !jsonrep {
+	switch {
+	case jsonrep:
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		if f != nil {
+			js, err := json.MarshalIndent(f, "", "  ")
+			if err != nil {
+				log.Print(err)
+			}
+			fmt.Fprintln(rep, string(js))
+		}
+	default:
 		var rep *os.File
 		if file != "" {
 			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -59,8 +73,16 @@ func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 			fmt.Fprintln(rep, "No findings!")
 		}
 		fmt.Fprintln(rep, "")
-	} else {
-		var rep *os.File
+	}
+}
+
+func ReportImage(f []string, options *pflag.FlagSet, check string) {
+	jsonrep, _ := options.GetBool("jsonrep")
+	file, _ := options.GetString("file")
+
+	var rep *os.File
+	switch {
+	case jsonrep:
 		if file != "" {
 			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		} else {
@@ -73,22 +95,12 @@ func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 			}
 			fmt.Fprintln(rep, string(js))
 		}
-	}
-
-}
-
-func ReportImage(f []string, options *pflag.FlagSet, check string) {
-	jsonrep, _ := options.GetBool("jsonrep")
-	file, _ := options.GetString("file")
-
-	if !jsonrep {
-		var rep *os.File
+	default:
 		if file != "" {
 			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		} else {
 			rep = os.Stdout
 		}
-
 		fmt.Fprintf(rep, "Findings for the %s check\n", check)
 		if f != nil {
 			for _, i := range f {
@@ -98,20 +110,6 @@ func ReportImage(f []string, options *pflag.FlagSet, check string) {
 			fmt.Fprintln(rep, "No findings!")
 		}
 		fmt.Fprintln(rep, "")
-	} else {
-		var rep *os.File
-		if file != "" {
-			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-		} else {
-			rep = os.Stdout
-		}
-		if f != nil {
-			js, err := json.MarshalIndent(f, "", "  ")
-			if err != nil {
-				log.Print(err)
-			}
-			fmt.Fprintln(rep, string(js))
-		}
 	}
 }
 
@@ -119,14 +117,27 @@ func ReportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check strin
 	jsonrep, _ := options.GetBool("jsonrep")
 	file, _ := options.GetString("file")
 
-	if !jsonrep {
-		var rep *os.File
+	var rep *os.File
+	switch {
+	case jsonrep:
+		if file != "" {
+			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		if f.Items != nil {
+			js, err := json.MarshalIndent(f, "", "  ")
+			if err != nil {
+				log.Print(err)
+			}
+			fmt.Fprintln(rep, string(js))
+		}
+	default:
 		if file != "" {
 			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		} else {
 			rep = os.Stdout
 		}
-
 		fmt.Fprintf(rep, "Findings for the %s check\n", check)
 		if f.Items != nil {
 			for _, i := range f.Items {
@@ -142,20 +153,6 @@ func ReportRBAC(f v1.ClusterRoleBindingList, options *pflag.FlagSet, check strin
 				fmt.Fprintf(rep, "RoleRef:\n")
 				fmt.Fprintf(rep, "  Kind: %s, Name: %s, APIGroup: %s\n", i.RoleRef.Kind, i.RoleRef.Name, i.RoleRef.APIGroup)
 				fmt.Fprintln(rep, "------------------------")
-			}
-		} else {
-			var rep *os.File
-			if file != "" {
-				rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			} else {
-				rep = os.Stdout
-			}
-			if f.Items != nil {
-				js, err := json.MarshalIndent(f, "", "  ")
-				if err != nil {
-					log.Print(err)
-				}
-				fmt.Fprintln(rep, string(js))
 			}
 		}
 	}
