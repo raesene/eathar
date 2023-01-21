@@ -18,6 +18,7 @@ import (
 
 func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
+	htmlrep, _ := options.GetBool("htmlrep")
 	file, _ := options.GetString("file")
 	switch {
 	case jsonrep:
@@ -34,6 +35,60 @@ func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 			}
 			fmt.Fprintln(rep, string(js))
 		}
+	case htmlrep:
+		var rep *os.File
+		if file != "" {
+			rep, _ = os.OpenFile(file+".html", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		fmt.Fprintf(rep, "<head><title>Findings for the %s check</title></head><body>", check)
+		fmt.Fprintf(rep, "<h1>Findings for the %s check</h1>", check)
+		if f != nil {
+			fmt.Fprintln(rep, "<table>")
+			switch f[0].Check {
+			case "hostpid", "hostnet", "hostipc", "privileged", "allowprivesc", "HostProcess", "Seccomp Disabled", "Unmasked Procmount", "Apparmor Disabled":
+				if f[0].Container != "" {
+					fmt.Fprintf(rep, "<tr><th>Namespace</th><th>Pod</th><th>Container</th></tr>")
+				} else {
+					fmt.Fprintf(rep, "<tr><th>Namespace</th><th>Pod</th></tr>")
+				}
+			case "Added Capabilities":
+				fmt.Fprintf(rep, "<tr><th>namespace</th><th>pod</th><th>container</th><th>added capabilities</th></tr>")
+			case "Dropped Capabilities":
+				fmt.Fprintf(rep, "<tr><th>namespace</th><th>pod</th><th>container</th><th>dropped capabilities</th></tr>")
+			case "Host Ports":
+				fmt.Fprintf(rep, "<tr><th>namespace</th><th>pod</th><th>container</th><th>port</th</tr>")
+			case "Host Path":
+				fmt.Fprintf(rep, "<tr><th>namespace</th><th>pod</th><th>volume</th><th>path</th></tr>")
+			case "Unsafe Sysctl":
+				fmt.Fprintf(rep, "<tr><th>namespace</th><th>pod</th><th>unsafe sysctl</th></tr>")
+			}
+			for _, i := range f {
+				switch i.Check {
+				case "hostpid", "hostnet", "hostipc", "privileged", "allowprivesc", "HostProcess", "Seccomp Disabled", "Unmasked Procmount", "Apparmor Disabled":
+					if i.Container != "" {
+						fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod, i.Container)
+					} else {
+						fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod)
+					}
+				case "Added Capabilities":
+					fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+				case "Dropped Capabilities":
+					fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+				case "Host Ports":
+					fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%d</td></tr>", i.Namespace, i.Pod, i.Container, i.Hostport)
+				case "Host Path":
+					fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod, i.Volume, i.Path)
+				case "Unsafe Sysctl":
+					fmt.Fprintf(rep, "<tr><td>%s</td><td>%s</td><td>%s</td></tr>", i.Namespace, i.Pod, i.Sysctl)
+				}
+			}
+			fmt.Fprintln(rep, "</table></body></html>")
+		} else {
+			fmt.Fprintln(rep, "<p>No findings</p>")
+		}
+
 	default:
 		var rep *os.File
 		if file != "" {
@@ -53,19 +108,15 @@ func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 						fmt.Fprintf(rep, "namespace %s : pod %s\n", i.Namespace, i.Pod)
 					}
 				case "Added Capabilities":
-					fmt.Fprintf(rep, "namespace %s : pod %s : container %s added %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s added capabilities %s \n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Dropped Capabilities":
-					fmt.Fprintf(rep, "namespace %s : pod %s : container %s dropped %s capabilities\n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
+					fmt.Fprintf(rep, "namespace %s : pod %s : container %s dropped capabilities %s \n", i.Namespace, i.Pod, i.Container, strings.Join(i.Capabilities[:], ","))
 				case "Host Ports":
 					fmt.Fprintf(rep, "namespace %s : pod %s : container %s : port %d\n", i.Namespace, i.Pod, i.Container, i.Hostport)
 				case "Host Path":
 					fmt.Fprintf(rep, "namespace %s : pod %s : volume %s : path %s\n", i.Namespace, i.Pod, i.Volume, i.Path)
 				case "Unsafe Sysctl":
 					fmt.Fprintf(rep, "namespace %s : pod %s : unsafe sysctl %s", i.Namespace, i.Pod, i.Sysctl)
-				case "Image List":
-					//fmt.Fprintf(rep, "namespace %s : pod %s : container %s : image %s\n", i.Namespace, i.Pod, i.Container, i.Image)
-					//Let's just print the unique image name
-					fmt.Fprintf(rep, "%s\n", i.Image)
 
 				}
 			}
