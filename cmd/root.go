@@ -31,5 +31,6 @@ func Execute() {
 func init() {
 	// Get the home directory for default kubeconfig location
 	rootCmd.PersistentFlags().BoolP("jsonrep", "j", false, "json reporting")
+	rootCmd.PersistentFlags().BoolP("htmlrep", "", false, "HTML reporting")
 	rootCmd.PersistentFlags().StringP("file", "f", "", "Report file")
 }
