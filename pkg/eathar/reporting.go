@@ -204,7 +204,7 @@ func ReportImage(f []string, options *pflag.FlagSet, check string) {
 		} else {
 			rep = os.Stdout
 		}
-		fmt.Fprintf(rep, "<html><head>%s<title>Image List</title></head><body><table><tr><th>Image</th></tr>", style)
+		fmt.Fprintf(rep, "<html><head>%s<title>Image List</title></head><body><h1>Image List</h1><br/><table><tr><th>Image</th></tr>", style)
 		if f != nil {
 			for _, i := range f {
 				fmt.Fprintf(rep, "<tr><td>%s</td></tr>", i)
