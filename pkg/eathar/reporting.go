@@ -178,6 +178,58 @@ func ReportPSS(f []Finding, options *pflag.FlagSet, check string) {
 	}
 }
 
+func ReportPrincipal(f []string, options *pflag.FlagSet, check string) {
+	jsonrep, _ := options.GetBool("jsonrep")
+	htmlrep, _ := options.GetBool("htmlrep")
+	file, _ := options.GetString("file")
+	var rep *os.File
+	switch {
+	case jsonrep:
+		if file != "" {
+			rep, _ = os.OpenFile(file+".json", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		if f != nil {
+			js, err := json.MarshalIndent(f, "", "  ")
+			if err != nil {
+				log.Print(err)
+			}
+			fmt.Fprintln(rep, string(js))
+		}
+	case htmlrep:
+		if file != "" {
+			rep, _ = os.OpenFile(file+".html", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		fmt.Fprintf(rep, "<html><head>%s<title>%s</title></head><body><table><tr><th>Name</th></tr>", style, check)
+		if f != nil {
+			for _, i := range f {
+				fmt.Fprintf(rep, "<tr><td>%s</td></tr>", i)
+			}
+		} else {
+			fmt.Fprintln(rep, "<tr><td>No findings</td></tr>")
+		}
+		fmt.Fprintln(rep, "</table></body></html>")
+	default:
+		if file != "" {
+			rep, _ = os.OpenFile(file+".txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		} else {
+			rep = os.Stdout
+		}
+		fmt.Fprintf(rep, "Findings for the %s check\n", check)
+		if f != nil {
+			for _, i := range f {
+				fmt.Fprintf(rep, "%s\n", i)
+			}
+		} else {
+			fmt.Fprintln(rep, "No findings!")
+		}
+		fmt.Fprintln(rep, "")
+	}
+}
+
 func ReportImage(f []string, options *pflag.FlagSet, check string) {
 	jsonrep, _ := options.GetBool("jsonrep")
 	htmlrep, _ := options.GetBool("htmlrep")
