@@ -59,7 +59,12 @@ Eathar connects to a Kubernetes cluster, it works based on whatever you have you
 By Default reporting is to STDOUT in text format. There's a couple of options for changing that
 
 `-j` will output to JSON
-`-f <FILENAME>` sends output to a file (`.txt` or `.json` gets appended to the name specified)
+`--htmlrep` will output to HTML
+`-f <FILENAME>` sends output to a file (`.txt`, `.html` or `.json` gets appended to the name specified)
+
+The HTML report outputs basic tables which look like this :-
+
+![htmlreport](https://user-images.githubusercontent.com/68317/216761034-4210f551-baa9-4b55-bc50-5f832de86e53.png)
 
 ## Architecture
 
