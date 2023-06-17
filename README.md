@@ -54,6 +54,10 @@ You can run all of these using the `rbac` command, or you can run a specific che
 
 Eathar connects to a Kubernetes cluster, it works based on whatever you have your current context set to.
 
+## Exclude Namespaces
+
+If you want to exclude certain namespaces from the checks you can use the `--exclude` flag. For example to exclude the `kube-system` and `kube-public` namespaces you would run `eathar pss --exclude kube-system,kube-public`.
+
 ## Reporting
 
 By Default reporting is to STDOUT in text format. There's a couple of options for changing that
