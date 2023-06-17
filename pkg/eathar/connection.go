@@ -7,8 +7,10 @@ Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
 
 import (
 	"context"
+	"strings"
 
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/pflag"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -31,7 +33,7 @@ func initKubeClient() (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
-func connectWithPods() *corev1.PodList {
+func connectWithPods(options *pflag.FlagSet) *corev1.PodList {
 	clientset, err := initKubeClient()
 	if err != nil {
 		log.Print(err)
@@ -40,5 +42,32 @@ func connectWithPods() *corev1.PodList {
 	if err != nil {
 		log.Print(err)
 	}
-	return pods
+
+	exclude, err := options.GetString("exclude")
+
+	var excludeList []string
+	if exclude != "" {
+		excludeList = strings.Split(exclude, ",")
+	}
+	if err != nil {
+		log.Print(err)
+	}
+	filteredPods := &corev1.PodList{}
+	for _, pod := range pods.Items {
+		if len(excludeList) > 0 {
+			excluded := false
+			for _, s := range excludeList {
+				if strings.Contains(pod.Namespace, s) {
+					excluded = true
+					break
+				}
+			}
+			if excluded {
+				continue
+			}
+		}
+		filteredPods.Items = append(filteredPods.Items, pod)
+	}
+
+	return filteredPods
 }

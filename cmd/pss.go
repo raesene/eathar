@@ -23,5 +23,6 @@ var pssCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(pssCmd)
-
+	// Optiont to exclude the kube-system or other namespaces
+	pssCmd.PersistentFlags().StringP("exclude", "e", "", "Comma separated list of namespaces to exclude")
 }

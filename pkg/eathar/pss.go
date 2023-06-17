@@ -27,7 +27,7 @@ type Finding struct {
 
 func Hostnet(options *pflag.FlagSet) []Finding {
 	var hostnetcont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 
 		if pod.Spec.HostNetwork {
@@ -40,7 +40,7 @@ func Hostnet(options *pflag.FlagSet) []Finding {
 
 func Hostpid(options *pflag.FlagSet) []Finding {
 	var hostpidcont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 
 	for _, pod := range pods.Items {
 
@@ -55,7 +55,7 @@ func Hostpid(options *pflag.FlagSet) []Finding {
 
 func Hostipc(options *pflag.FlagSet) []Finding {
 	var hostipccont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 
 	for _, pod := range pods.Items {
 
@@ -69,7 +69,7 @@ func Hostipc(options *pflag.FlagSet) []Finding {
 
 func HostProcess(options *pflag.FlagSet) []Finding {
 	var hostprocesscont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		hostProcessPod := pod.Spec.SecurityContext.WindowsOptions != nil && *pod.Spec.SecurityContext.WindowsOptions.HostProcess
 		if hostProcessPod {
@@ -104,7 +104,7 @@ func HostProcess(options *pflag.FlagSet) []Finding {
 
 func AllowPrivEsc(options *pflag.FlagSet) []Finding {
 	var allowprivesccont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			// Logic here is if there's no security context, or there is a security context and no mention of allow privilege escalation then the default is true
@@ -136,7 +136,7 @@ func AllowPrivEsc(options *pflag.FlagSet) []Finding {
 
 func Privileged(options *pflag.FlagSet) []Finding {
 	var privcont []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			privileged_container := container.SecurityContext != nil && container.SecurityContext.Privileged != nil && *container.SecurityContext.Privileged
@@ -166,7 +166,7 @@ func Privileged(options *pflag.FlagSet) []Finding {
 
 func AddedCapabilities(options *pflag.FlagSet) []Finding {
 	var capadded []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			cap_added := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Add != nil
@@ -211,7 +211,7 @@ func AddedCapabilities(options *pflag.FlagSet) []Finding {
 
 func DroppedCapabilities(options *pflag.FlagSet) []Finding {
 	var capdropped []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			cap_dropped := container.SecurityContext != nil && container.SecurityContext.Capabilities != nil && container.SecurityContext.Capabilities.Drop != nil
@@ -255,7 +255,7 @@ func DroppedCapabilities(options *pflag.FlagSet) []Finding {
 
 func HostPorts(options *pflag.FlagSet) []Finding {
 	var hostports []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			//Does the container have ports specified
@@ -299,7 +299,7 @@ func HostPorts(options *pflag.FlagSet) []Finding {
 
 func Seccomp(options *pflag.FlagSet) []Finding {
 	var seccomp []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	// The logic here is that if the pod is unconfined & the container is unconfined, it's unconfined.
 	// In theory if all the containers in the pod are unconfined we could just mark it at pod level, but that's more complex :P
 	for _, pod := range pods.Items {
@@ -335,7 +335,7 @@ func Seccomp(options *pflag.FlagSet) []Finding {
 
 func HostPath(options *pflag.FlagSet) []Finding {
 	var hostpath []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		host_path := pod.Spec.Volumes != nil
 		if host_path {
@@ -353,7 +353,7 @@ func HostPath(options *pflag.FlagSet) []Finding {
 
 func Apparmor(options *pflag.FlagSet) []Finding {
 	var apparmor []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		// Default should be apparmor is set (well it is for docker anyway), so we only care if it's explicitly set to unconfined
 		if pod.Annotations != nil {
@@ -371,7 +371,7 @@ func Apparmor(options *pflag.FlagSet) []Finding {
 
 func Procmount(options *pflag.FlagSet) []Finding {
 	var unmaskedproc []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			unmask := container.SecurityContext != nil && container.SecurityContext.ProcMount != nil && *container.SecurityContext.ProcMount == "Unmasked"
@@ -401,7 +401,7 @@ func Procmount(options *pflag.FlagSet) []Finding {
 
 func Sysctl(options *pflag.FlagSet) []Finding {
 	var sysctls []Finding
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		sysctl := pod.Spec.SecurityContext != nil && pod.Spec.SecurityContext.Sysctls != nil
 		if sysctl {

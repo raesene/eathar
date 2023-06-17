@@ -5,7 +5,7 @@ import "github.com/spf13/pflag"
 //Creates a list of images in use in the cluster
 func ImageList(options *pflag.FlagSet) []string {
 	imageList := make(map[string]bool)
-	pods := connectWithPods()
+	pods := connectWithPods(options)
 	for _, pod := range pods.Items {
 		for _, container := range pod.Spec.Containers {
 			imageList[container.Image] = true
