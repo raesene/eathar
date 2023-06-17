@@ -33,4 +33,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("jsonrep", "j", false, "json reporting")
 	rootCmd.PersistentFlags().BoolP("htmlrep", "", false, "HTML reporting")
 	rootCmd.PersistentFlags().StringP("file", "f", "", "Report file")
+	// Optiont to exclude the kube-system or other namespaces
+	rootCmd.PersistentFlags().StringP("exclude", "e", "", "Comma separated list of namespaces to exclude")
 }
