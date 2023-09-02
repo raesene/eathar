@@ -11,7 +11,7 @@ import (
 
 // imagelistCmd represents the imagelist command
 var imagelistCmd = &cobra.Command{
-	Use:   "imagelist",
+	Use:   "imageList",
 	Short: "List images used in the cluster",
 	Long:  `This will provide a list of images used in the cluster`,
 	Run: func(cmd *cobra.Command, args []string) {

@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 	Short: "Kubernetes Security Information Retriever",
 	Long: `Eathar is a program designed to pull information that might be
 	of interest back from Kubernetes clusters.`,
-	Version: "0.2.5",
+	Version: "0.2.10",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
