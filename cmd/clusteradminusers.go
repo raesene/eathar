@@ -1,7 +1,7 @@
 /*
-Copyright © 2022 Rory McCune <rorym@mccune.org.uk>
-
+Copyright © 2023 Rory McCune <rorym@mccune.org.uk>
 */
+
 package cmd
 
 import (
