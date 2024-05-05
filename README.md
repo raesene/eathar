@@ -22,7 +22,7 @@ To run all checks just use the top-level `pss` command. To run a specific check 
 - `apparmor` - Look for containers where the apparmor profile is explicitly set to unconfined.
 - `procmount` - Look for containers with an unmasked proc filesystem mount.
 - `sysctl` - Look for dangerous sysctls being set
-- `allPSS` - Run all configured checks
+- `all` - Run all configured checks
 
 ## Info Checks
 
