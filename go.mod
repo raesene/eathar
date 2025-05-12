@@ -1,6 +1,6 @@
 module github.com/raesene/eathar
 
-go 1.21
+go 1.24
 
 require (
 	github.com/spf13/cobra v1.7.0

@@ -22,12 +22,12 @@ func initKubeClient() (*kubernetes.Clientset, error) {
 	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &clientcmd.ConfigOverrides{})
 	config, err := kubeConfig.ClientConfig()
 	if err != nil {
-		log.Printf("initKubeClient: failed creating ClientConfig with", err)
+		log.Printf("initKubeClient: failed creating ClientConfig with %v", err)
 		return nil, err
 	}
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		log.Printf("initKubeClient: failed creating Clientset with", err)
+		log.Printf("initKubeClient: failed creating Clientset with %v", err)
 		return nil, err
 	}
 	return clientset, nil
